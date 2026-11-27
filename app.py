@@ -5,8 +5,8 @@ import streamlit as st
 import yfinance as yf
 
 st.set_page_config(
-    page_title="ARVANO Split BUY / SELL Portal Scanner",
-    page_icon="⚖️",
+    page_title="ARVANO SELL | BUY Split Scanner",
+    page_icon="⚡",
     layout="wide",
 )
 
@@ -14,48 +14,26 @@ st.markdown(
     """
     <style>
     .stApp {
-        background-color: #0c0c0f;
+        background-color: #0b0b0e;
         color: #f6f1e7;
     }
-    .portal-header-buy {
-        background: rgba(34, 197, 94, 0.14);
-        border: 1px solid rgba(34, 197, 94, 0.45);
-        border-radius: 10px;
-        padding: 10px 14px;
-        font-size: 1.05rem;
-        font-weight: 800;
-        color: #4ade80;
-        margin-bottom: 12px;
-        text-align: center;
-    }
-    .portal-header-sell {
-        background: rgba(239, 68, 68, 0.14);
-        border: 1px solid rgba(239, 68, 68, 0.45);
-        border-radius: 10px;
-        padding: 10px 14px;
-        font-size: 1.05rem;
-        font-weight: 800;
-        color: #f87171;
-        margin-bottom: 12px;
-        text-align: center;
-    }
-    .split-card-buy {
-        background: linear-gradient(145deg, #131b17 0%, #19211b 100%);
-        border: 1px solid #284635;
-        border-left: 5px solid #22c55e;
-        border-radius: 12px;
-        padding: 14px 16px;
-        margin-bottom: 12px;
-    }
-    .split-card-sell {
-        background: linear-gradient(145deg, #1d1416 0%, #241719 100%);
-        border: 1px solid #4d292f;
+    .sell-box {
+        background: linear-gradient(145deg, #1d1315 0%, #261719 100%);
+        border: 1px solid #52292f;
         border-left: 5px solid #ef4444;
         border-radius: 12px;
         padding: 14px 16px;
         margin-bottom: 12px;
     }
-    .card-top {
+    .buy-box {
+        background: linear-gradient(145deg, #121c17 0%, #17231c 100%);
+        border: 1px solid #284a37;
+        border-left: 5px solid #22c55e;
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-bottom: 12px;
+    }
+    .box-head {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -63,12 +41,21 @@ st.markdown(
         flex-wrap: wrap;
         margin-bottom: 6px;
     }
-    .card-title {
+    .box-name {
         font-size: 1.04rem;
         font-weight: 800;
         color: #fff7e8;
     }
-    .card-action-buy {
+    .tag-sell {
+        background: rgba(239, 68, 68, 0.24);
+        color: #f87171;
+        border: 1px solid #ef4444;
+        padding: 2px 10px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 800;
+    }
+    .tag-buy {
         background: rgba(34, 197, 94, 0.22);
         color: #4ade80;
         border: 1px solid #22c55e;
@@ -77,35 +64,26 @@ st.markdown(
         font-size: 0.78rem;
         font-weight: 800;
     }
-    .card-action-sell {
-        background: rgba(239, 68, 68, 0.22);
-        color: #f87171;
-        border: 1px solid #ef4444;
-        padding: 2px 10px;
-        border-radius: 999px;
-        font-size: 0.78rem;
-        font-weight: 800;
-    }
-    .card-levels {
+    .box-lvl {
         font-size: 0.90rem;
-        color: #f2e6ce;
+        color: #f3e6ce;
         margin-bottom: 8px;
         line-height: 1.45;
     }
-    .badge-strip {
+    .st-row {
         display: flex;
         flex-wrap: wrap;
         gap: 6px;
         margin-bottom: 8px;
     }
-    .st-badge {
+    .st-pill {
         font-size: 0.78rem;
         font-weight: 700;
         padding: 3px 8px;
         border-radius: 6px;
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.14);
-        color: #e8decb;
+        color: #e9e0cf;
     }
     .st-hit {
         background: rgba(34, 197, 94, 0.24);
@@ -117,40 +95,23 @@ st.markdown(
         border: 1px solid #ef4444;
         color: #f87171;
     }
-    .card-why {
+    .box-why {
         font-size: 0.84rem;
-        color: #e5dccb;
-        background: rgba(0, 0, 0, 0.22);
+        color: #e6ddcc;
+        background: rgba(0, 0, 0, 0.25);
         border-radius: 8px;
         padding: 8px 10px;
         line-height: 1.4;
-    }
-    .empty-portal {
-        background: rgba(255, 255, 255, 0.025);
-        border: 1px dashed rgba(255, 255, 255, 0.16);
-        border-radius: 10px;
-        padding: 16px;
-        text-align: center;
-        color: #b7ab96;
-        font-size: 0.90rem;
-        margin-bottom: 12px;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-INDICES = {
+FNO_INDICES = {
     "NIFTY 50": {"ticker": "^NSEI", "step": 50},
     "BANK NIFTY": {"ticker": "^NSEBANK", "step": 100},
     "SENSEX": {"ticker": "^BSESN", "step": 100},
-}
-
-METALS = {
-    "GOLD FUTURES (USD)": "GC=F",
-    "SILVER FUTURES (USD)": "SI=F",
-    "GOLDBEES (NSE)": "GOLDBEES.NS",
-    "SILVERBEES (NSE)": "SILVERBEES.NS",
 }
 
 TOP_100_NSE = [
@@ -177,15 +138,20 @@ TOP_100_NSE = [
 ]
 TOP_100_NSE = list(dict.fromkeys(TOP_100_NSE))
 
+GOLD_SILVER = {
+    "GOLD FUTURES (USD)": "GC=F",
+    "SILVER FUTURES (USD)": "SI=F",
+    "GOLDBEES (NSE)": "GOLDBEES.NS",
+    "SILVERBEES (NSE)": "SILVERBEES.NS",
+}
 
-def round_strike(price: float, step: int, side: str) -> int:
+
+def strike_pick(price: float, step: int, side: str) -> int:
     atm = int(round(price / step) * step)
-    if side == "BUY":
-        return atm + step
-    return atm - step
+    return atm + step if side == "BUY" else atm - step
 
 
-def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
+def compute_setup_df(df: pd.DataFrame) -> pd.DataFrame:
     d = df.copy()
     if isinstance(d.columns, pd.MultiIndex):
         d.columns = d.columns.get_level_values(0)
@@ -199,11 +165,11 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     low = d["Low"].astype(float)
     vol = d["Volume"].fillna(0).astype(float) if "Volume" in d.columns else pd.Series(0.0, index=d.index)
 
-    # Criterion 1: Trend EMAs (10 EMA & 50 EMA)
+    # Customized EMAs (10 EMA & 50 EMA)
     d["ema10"] = close.ewm(span=10, adjust=False).mean()
     d["ema50"] = close.ewm(span=50, adjust=False).mean()
 
-    # Criterion 2: Intraday VWAP
+    # Intraday VWAP
     tp = (high + low + close) / 3.0
     if vol.sum() > 0:
         day_key = d.index.date
@@ -213,13 +179,14 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     else:
         d["vwap"] = close.ewm(span=24, adjust=False).mean()
 
-    # Criterion 3: RSI (14) & ADX (14)
+    # RSI (14)
     delta = close.diff()
     gain = delta.clip(lower=0).ewm(alpha=1 / 14, adjust=False).mean()
     loss = (-delta.clip(upper=0)).ewm(alpha=1 / 14, adjust=False).mean()
     rs = gain / loss.replace(0, np.nan)
     d["rsi14"] = (100 - (100 / (1 + rs))).fillna(50.0)
 
+    # ATR (14) & ATR%
     prev_close = close.shift(1)
     tr = pd.concat(
         [(high - low).abs(), (high - prev_close).abs(), (low - prev_close).abs()],
@@ -228,6 +195,7 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     d["atr14"] = tr.ewm(alpha=1 / 14, adjust=False).mean()
     d["atr_pct"] = (d["atr14"] / close.replace(0, np.nan)) * 100.0
 
+    # ADX (14)
     up_move = high.diff()
     down_move = -low.diff()
     plus_dm = np.where((up_move > down_move) & (up_move > 0), up_move, 0.0)
@@ -238,7 +206,7 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     dx = (100 * (plus_di - minus_di).abs() / (plus_di + minus_di).replace(0, np.nan)).fillna(0.0)
     d["adx14"] = dx.ewm(alpha=1 / 14, adjust=False).mean()
 
-    # Criterion 4: Support / Resistance & Pattern Break levels
+    # Support / Resistance & Break Structure
     d["res20"] = high.shift(1).rolling(20).max()
     d["sup20"] = low.shift(1).rolling(20).min()
     d["hh10"] = high.shift(1).rolling(10).max()
@@ -247,7 +215,7 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     return d.dropna(subset=["ema50", "atr14", "res20", "sup20", "hh10", "ll10"])
 
 
-def check_hits(d: pd.DataFrame, side: str, sl: float, t1: float, t2: float, t3: float) -> dict:
+def target_sl_flags(d: pd.DataFrame, side: str, sl: float, t1: float, t2: float, t3: float) -> dict:
     today = d.index[-1].date()
     today_df = d[d.index.date == today]
     if today_df.empty:
@@ -273,14 +241,7 @@ def check_hits(d: pd.DataFrame, side: str, sl: float, t1: float, t2: float, t3: 
     }
 
 
-def evaluate_four_criteria(d: pd.DataFrame, name: str, strike_step: int | None = None) -> dict | None:
-    """
-    Requires all 4 core criteria to align in the same direction (BUY or SELL):
-      1. EMA Trend (10 EMA & 50 EMA)
-      2. VWAP position
-      3. Momentum & Strength (RSI 14 + ADX 14)
-      4. Support/Resistance & Chart Pattern structure
-    """
+def get_active_move(d: pd.DataFrame, name: str, strike_step: int | None = None) -> dict | None:
     last = d.iloc[-1]
     price = float(last["Close"])
     ema10 = float(last["ema10"])
@@ -300,60 +261,60 @@ def evaluate_four_criteria(d: pd.DataFrame, name: str, strike_step: int | None =
     min_low = float(lows_win.min()) if len(lows_win) else sup20
     max_high = float(highs_win.max()) if len(highs_win) else res20
 
-    # --- ALL 4 BUY CRITERIA ---
-    c1_buy = (price > ema50) and (ema10 >= ema50 * 0.999)
-    c2_buy = price > vwap
-    c3_buy = (rsi >= 55) and (adx >= 20)
-    bull_pattern = "Breakout / Continuation"
-    if price > res20:
-        bull_pattern = f"Resistance {res20:.2f} Break"
-    elif abs(min_low - sup20) / max(sup20, 1e-6) <= 0.004 and price > ema10:
-        bull_pattern = "Double Bottom Breakout"
-    elif price > hh10:
-        bull_pattern = "Higher-High Pattern Break"
-    c4_buy = (price > res20) or (price > hh10) or (abs(price - res20) / max(price, 1e-6) <= 0.004) or ("Double Bottom" in bull_pattern)
+    # BUY criteria: EMA trend + VWAP + RSI/ADX momentum + S/R or pattern break
+    buy_ok = (
+        (price > ema50)
+        and (ema10 >= ema50 * 0.999)
+        and (price > vwap)
+        and (rsi >= 55)
+        and (adx >= 22)
+        and (
+            (price > res20)
+            or (price > hh10)
+            or (abs(price - res20) / max(price, 1e-6) <= 0.004)
+            or (abs(min_low - sup20) / max(sup20, 1e-6) <= 0.004 and price > ema10)
+        )
+    )
 
-    # --- ALL 4 SELL CRITERIA ---
-    c1_sell = (price < ema50) and (ema10 <= ema50 * 1.001)
-    c2_sell = price < vwap
-    c3_sell = (rsi <= 45) and (adx >= 20)
-    bear_pattern = "Breakdown / Continuation"
-    if price < sup20:
-        bear_pattern = f"Support {sup20:.2f} Break"
-    elif abs(max_high - res20) / max(res20, 1e-6) <= 0.004 and price < ema10:
-        bear_pattern = "Double Top Breakdown"
-    elif price < ll10:
-        bear_pattern = "Lower-Low Pattern Break"
-    c4_sell = (price < sup20) or (price < ll10) or (abs(price - sup20) / max(price, 1e-6) <= 0.004) or ("Double Top" in bear_pattern)
+    # SELL criteria: EMA trend + VWAP + RSI/ADX momentum + S/R or pattern breakdown
+    sell_ok = (
+        (price < ema50)
+        and (ema10 <= ema50 * 1.001)
+        and (price < vwap)
+        and (rsi <= 45)
+        and (adx >= 22)
+        and (
+            (price < sup20)
+            or (price < ll10)
+            or (abs(price - sup20) / max(price, 1e-6) <= 0.004)
+            or (abs(max_high - res20) / max(res20, 1e-6) <= 0.004 and price < ema10)
+        )
+    )
 
-    if c1_buy and c2_buy and c3_buy and c4_buy:
+    if buy_ok:
         side = "BUY"
-        action_text = f"BUY {round_strike(price, strike_step, 'BUY')} CE" if strike_step else "BUY"
+        action_text = f"BUY {strike_pick(price, strike_step, 'BUY')} CE" if strike_step else "BUY"
         entry = price
         sl = max(0.0, entry - 2.0 * atr)
         t1 = entry + 1.5 * atr
         t2 = entry + 2.8 * atr
         t3 = entry + 4.2 * atr
-        why = (
-            f"All 4 BUY criteria matched | Pattern/SR: {bull_pattern} | "
-            f"EMA10/50: {ema10:.2f}/{ema50:.2f} | VWAP: {vwap:.2f} | RSI: {rsi:.1f} | ADX: {adx:.1f}"
-        )
-    elif c1_sell and c2_sell and c3_sell and c4_sell:
+        pat = f"Res {res20:.2f} Break" if price > res20 else ("Double Bottom" if abs(min_low - sup20) / max(sup20, 1e-6) <= 0.004 else "HH Breakout")
+        why = f"{pat} | >50 EMA ({ema50:.2f}) & VWAP ({vwap:.2f}) | RSI {rsi:.1f} | ADX {adx:.1f}"
+    elif sell_ok:
         side = "SELL"
-        action_text = f"BUY {round_strike(price, strike_step, 'SELL')} PE" if strike_step else "SELL"
+        action_text = f"BUY {strike_pick(price, strike_step, 'SELL')} PE" if strike_step else "SELL"
         entry = price
         sl = entry + 2.0 * atr
         t1 = max(0.0, entry - 1.5 * atr)
         t2 = max(0.0, entry - 2.8 * atr)
         t3 = max(0.0, entry - 4.2 * atr)
-        why = (
-            f"All 4 SELL criteria matched | Pattern/SR: {bear_pattern} | "
-            f"EMA10/50: {ema10:.2f}/{ema50:.2f} | VWAP: {vwap:.2f} | RSI: {rsi:.1f} | ADX: {adx:.1f}"
-        )
+        pat = f"Sup {sup20:.2f} Break" if price < sup20 else ("Double Top" if abs(max_high - res20) / max(res20, 1e-6) <= 0.004 else "LL Breakdown")
+        why = f"{pat} | <50 EMA ({ema50:.2f}) & VWAP ({vwap:.2f}) | RSI {rsi:.1f} | ADX {adx:.1f}"
     else:
         return None
 
-    lock_key = f"split_lock_{name}"
+    lock_key = f"move_lock_{name}"
     if lock_key not in st.session_state or st.session_state[lock_key]["side"] != side:
         st.session_state[lock_key] = {
             "side": side,
@@ -366,8 +327,8 @@ def evaluate_four_criteria(d: pd.DataFrame, name: str, strike_step: int | None =
     locked = st.session_state[lock_key]
     entry, sl, t1, t2, t3 = locked["entry"], locked["sl"], locked["t1"], locked["t2"], locked["t3"]
 
-    hits = check_hits(d, side, sl, t1, t2, t3)
-    move_score = (atr_pct * 2.2) + (adx * 0.6)
+    flags = target_sl_flags(d, side, sl, t1, t2, t3)
+    score = (atr_pct * 2.2) + (adx * 0.6)
 
     return {
         "name": name,
@@ -381,165 +342,130 @@ def evaluate_four_criteria(d: pd.DataFrame, name: str, strike_step: int | None =
         "t3": t3,
         "atr_pct": round(atr_pct, 2),
         "why": why,
-        "move_score": move_score,
-        **hits,
+        "score": score,
+        **flags,
     }
 
 
 @st.cache_data(ttl=25, show_spinner=False)
-def fetch_data(ticker: str, period: str = "10d", interval: str = "15m") -> pd.DataFrame:
+def fetch_candles(ticker: str, period: str = "10d", interval: str = "15m") -> pd.DataFrame:
     try:
         raw = yf.download(ticker, period=period, interval=interval, progress=False, threads=False)
         if raw is None or raw.empty:
             return pd.DataFrame()
-        return add_indicators(raw)
+        return compute_setup_df(raw)
     except Exception:
         return pd.DataFrame()
 
 
-def render_split_card(item: dict):
-    is_buy = item["side"] == "BUY"
-    card_cls = "split-card-buy" if is_buy else "split-card-sell"
-    pill_cls = "card-action-buy" if is_buy else "card-action-sell"
+def render_side_box(item: dict):
+    is_sell = item["side"] == "SELL"
+    box_cls = "sell-box" if is_sell else "buy-box"
+    tag_cls = "tag-sell" if is_sell else "tag-buy"
 
-    t1_cls = "st-badge st-hit" if item["t1_hit"] else "st-badge"
-    t2_cls = "st-badge st-hit" if item["t2_hit"] else "st-badge"
-    t3_cls = "st-badge st-hit" if item["t3_hit"] else "st-badge"
-    sl_cls = "st-badge st-sl" if item["sl_hit"] else "st-badge"
-
-    t1_lbl = f"T1 {item['t1']:.2f} — HIT" if item["t1_hit"] else f"T1 {item['t1']:.2f}"
-    t2_lbl = f"T2 {item['t2']:.2f} — HIT" if item["t2_hit"] else f"T2 {item['t2']:.2f}"
-    t3_lbl = f"T3 {item['t3']:.2f} — HIT" if item["t3_hit"] else f"T3 {item['t3']:.2f}"
-    sl_lbl = f"SL {item['sl']:.2f} — SL HIT" if item["sl_hit"] else f"SL {item['sl']:.2f}"
+    t1_cls = "st-pill st-hit" if item["t1_hit"] else "st-pill"
+    t2_cls = "st-pill st-hit" if item["t2_hit"] else "st-pill"
+    t3_cls = "st-pill st-hit" if item["t3_hit"] else "st-pill"
+    sl_cls = "st-pill st-sl" if item["sl_hit"] else "st-pill"
 
     st.markdown(
         f"""
-        <div class="{card_cls}">
-            <div class="card-top">
-                <div class="card-title">{item['name']}</div>
-                <span class="{pill_cls}">{item['action_text']}</span>
+        <div class="{box_cls}">
+            <div class="box-head">
+                <div class="box-name">{item['name']}</div>
+                <span class="{tag_cls}">{item['action_text']}</span>
             </div>
-            <div class="card-levels">
+            <div class="box-lvl">
                 <b>Entry:</b> {item['entry']:.2f} &nbsp;|&nbsp;
                 <b>CMP:</b> {item['cmp']:.2f} &nbsp;|&nbsp;
                 <b>ATR%:</b> {item['atr_pct']:.2f}%
             </div>
-            <div class="badge-strip">
-                <span class="{t1_cls}">{t1_lbl}</span>
-                <span class="{t2_cls}">{t2_lbl}</span>
-                <span class="{t3_cls}">{t3_lbl}</span>
-                <span class="{sl_cls}">{sl_lbl}</span>
+            <div class="st-row">
+                <span class="{t1_cls}">T1 {item['t1']:.2f} {'(HIT)' if item['t1_hit'] else ''}</span>
+                <span class="{t2_cls}">T2 {item['t2']:.2f} {'(HIT)' if item['t2_hit'] else ''}</span>
+                <span class="{t3_cls}">T3 {item['t3']:.2f} {'(HIT)' if item['t3_hit'] else ''}</span>
+                <span class="{sl_cls}">SL {item['sl']:.2f} {'(SL HIT)' if item['sl_hit'] else ''}</span>
             </div>
-            <div class="card-why">{item['why']}</div>
+            <div class="box-why">{item['why']}</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
 
-def render_divided_portals(section_title: str, buy_items: list, sell_items: list, empty_buy_msg: str, empty_sell_msg: str):
-    st.subheader(section_title)
-    left_col, mid_col, right_col = st.columns([10, 0.25, 10])
+def render_split_row(title: str, sell_list: list, buy_list: list):
+    st.subheader(title)
+    c_left, c_div, c_right = st.columns([10, 0.2, 10])
 
-    with left_col:
-        st.markdown('<div class="portal-header-buy">LEFT PORTAL — BUY / CALL (ALL 4 CRITERIA MATCHED)</div>', unsafe_allow_html=True)
-        if buy_items:
-            for it in buy_items:
-                render_split_card(it)
-        else:
-            st.markdown(f'<div class="empty-portal">{empty_buy_msg}</div>', unsafe_allow_html=True)
+    with c_left:
+        for item in sell_list:
+            render_side_box(item)
 
-    with mid_col:
+    with c_div:
         st.markdown(
-            '<div style="border-left: 2px solid #5c4d38; height: 100%; min-height: 220px; margin: 0 auto;"></div>',
+            '<div style="border-left: 2px solid #574834; min-height: 140px; height: 100%; margin: 0 auto;"></div>',
             unsafe_allow_html=True,
         )
 
-    with right_col:
-        st.markdown('<div class="portal-header-sell">RIGHT PORTAL — SELL / PUT (ALL 4 CRITERIA MATCHED)</div>', unsafe_allow_html=True)
-        if sell_items:
-            for it in sell_items:
-                render_split_card(it)
-        else:
-            st.markdown(f'<div class="empty-portal">{empty_sell_msg}</div>', unsafe_allow_html=True)
+    with c_right:
+        for item in buy_list:
+            render_side_box(item)
 
 
 # Sidebar Controls
-st.sidebar.header("Split Portal Controls")
+st.sidebar.header("Scanner Controls")
 refresh_sec = st.sidebar.slider("Auto-Refresh (Seconds)", min_value=30, max_value=60, value=45, step=5)
 auto_refresh = st.sidebar.checkbox("Auto-Refresh ON (30–60s)", value=True)
-tf = st.sidebar.selectbox("Timeframe", ["15m", "30m"], index=0)
-period_map = {"15m": "10d", "30m": "15d"}
+tf = st.sidebar.selectbox("Timeframe", ["15m", "5m", "30m"], index=0)
+period_map = {"5m": "5d", "15m": "10d", "30m": "15d"}
 
 if st.sidebar.button("Refresh Now"):
     st.cache_data.clear()
 
-st.title("⚖️ ARVANO Split BUY / SELL Portal Scanner (No Charts)")
-st.caption(
-    f"Auto-refresh: {refresh_sec}s | Left = BUY Portal | Right = SELL Portal | Strict 4-Criteria Lock (EMA Trend + VWAP + RSI/ADX + S/R & Pattern)"
-)
+st.title("⚡ ARVANO Split Scanner (SELL Left | BUY Right)")
+st.caption(f"Auto-refresh: {refresh_sec}s | Left = SELL / PUT | Right = BUY / CALL | Order: F&O → Top 100 NSE Stocks → Gold & Silver")
 
-# 1. Indices Split Portal (Nifty 50, Bank Nifty, Sensex)
-idx_buy, idx_sell = [], []
-for idx_name, cfg in INDICES.items():
-    df_i = fetch_data(cfg["ticker"], period=period_map[tf], interval=tf)
+# 1. F&O INDICES (Nifty 50, Bank Nifty, Sensex)
+fno_sell, fno_buy = [], []
+for idx_name, cfg in FNO_INDICES.items():
+    df_i = fetch_candles(cfg["ticker"], period=period_map[tf], interval=tf)
     if not df_i.empty:
-        sig_i = evaluate_four_criteria(df_i, idx_name, strike_step=cfg["step"])
+        sig_i = get_active_move(df_i, idx_name, strike_step=cfg["step"])
         if sig_i:
-            (idx_buy if sig_i["side"] == "BUY" else idx_sell).append(sig_i)
+            (fno_sell if sig_i["side"] == "SELL" else fno_buy).append(sig_i)
 
-render_divided_portals(
-    section_title="1. F&O Indices Split Portal (Nifty 50 • Bank Nifty • Sensex)",
-    buy_items=idx_buy,
-    sell_items=idx_sell,
-    empty_buy_msg="Indices mein abhi saare 4 BUY criteria match nahi hue hain — trade nahi.",
-    empty_sell_msg="Indices mein abhi saare 4 SELL criteria match nahi hue hain — trade nahi.",
-)
-
+render_split_row("1. F&O (Nifty 50 • Bank Nifty • Sensex)", fno_sell, fno_buy)
 st.markdown("---")
 
-# 2. Gold & Silver Split Portal
-metal_buy, metal_sell = [], []
-for m_name, m_ticker in METALS.items():
-    df_m = fetch_data(m_ticker, period=period_map[tf], interval=tf)
-    if not df_m.empty:
-        sig_m = evaluate_four_criteria(df_m, m_name, strike_step=None)
-        if sig_m:
-            (metal_buy if sig_m["side"] == "BUY" else metal_sell).append(sig_m)
-
-render_divided_portals(
-    section_title="2. Gold & Silver Split Portal",
-    buy_items=metal_buy,
-    sell_items=metal_sell,
-    empty_buy_msg="Gold/Silver mein abhi saare 4 BUY criteria match nahi hue hain — trade nahi.",
-    empty_sell_msg="Gold/Silver mein abhi saare 4 SELL criteria match nahi hue hain — trade nahi.",
-)
-
-st.markdown("---")
-
-# 3. Top 100 NSE Stocks Split Portal
-stock_buy, stock_sell = [], []
-prog = st.progress(0, text="Scanning Top 100 NSE against all 4 BUY/SELL criteria...")
+# 2. TOP 100 NSE STOCKS (Only Active Chalne Wale Movers)
+stk_sell, stk_buy = [], []
+prog = st.progress(0, text="Scanning Top 100 NSE stocks...")
 for i, sym in enumerate(TOP_100_NSE):
-    df_s = fetch_data(sym, period=period_map[tf], interval=tf)
+    df_s = fetch_candles(sym, period=period_map[tf], interval=tf)
     if not df_s.empty:
         s_name = sym.replace(".NS", "")
-        sig_s = evaluate_four_criteria(df_s, s_name, strike_step=None)
+        sig_s = get_active_move(df_s, s_name, strike_step=None)
         if sig_s:
-            (stock_buy if sig_s["side"] == "BUY" else stock_sell).append(sig_s)
+            (stk_sell if sig_s["side"] == "SELL" else stk_buy).append(sig_s)
     prog.progress((i + 1) / len(TOP_100_NSE), text=f"Scanning Top 100 NSE ({i + 1}/{len(TOP_100_NSE)})...")
 prog.empty()
 
-stock_buy.sort(key=lambda x: x["move_score"], reverse=True)
-stock_sell.sort(key=lambda x: x["move_score"], reverse=True)
+stk_sell.sort(key=lambda x: x["score"], reverse=True)
+stk_buy.sort(key=lambda x: x["score"], reverse=True)
 
-render_divided_portals(
-    section_title="3. Top 100 NSE Stocks Split Portal (Left BUY vs Right SELL)",
-    buy_items=stock_buy,
-    sell_items=stock_sell,
-    empty_buy_msg="Top 100 NSE mein abhi koi stock saare 4 BUY criteria poore nahi kar raha.",
-    empty_sell_msg="Top 100 NSE mein abhi koi stock saare 4 SELL criteria poore nahi kar raha.",
-)
+render_split_row("2. Active NSE Stocks (Filtered from Top 100)", stk_sell, stk_buy)
+st.markdown("---")
+
+# 3. GOLD & SILVER
+gs_sell, gs_buy = [], []
+for g_name, g_ticker in GOLD_SILVER.items():
+    df_g = fetch_candles(g_ticker, period=period_map[tf], interval=tf)
+    if not df_g.empty:
+        sig_g = get_active_move(df_g, g_name, strike_step=None)
+        if sig_g:
+            (gs_sell if sig_g["side"] == "SELL" else gs_buy).append(sig_g)
+
+render_split_row("3. Gold & Silver", gs_sell, gs_buy)
 
 if auto_refresh:
     time.sleep(refresh_sec)
