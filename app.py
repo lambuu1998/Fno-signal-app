@@ -17,139 +17,97 @@ st.markdown(
         background-color: #0b0b0e;
         color: #f6f1e7;
     }
-    .box-fno, .stock-card {
-        background: linear-gradient(145deg, #151419 0%, #1b1712 100%);
-        border: 1px solid #3a3022;
+    .main-box {
+        background: #141318;
+        border: 1px solid #3d3325;
         border-radius: 12px;
-        padding: 12px 13px;
-        margin-bottom: 11px;
+        padding: 10px 10px 12px 10px;
+        margin-bottom: 14px;
+        overflow-x: auto;
     }
-    .box-buy {
-        border-left: 5px solid #22c55e;
+    .sec-hdr {
+        font-size: 0.95rem;
+        font-weight: 800;
+        padding: 7px 10px;
+        border-radius: 8px;
+        margin: 6px 0 8px 0;
+        letter-spacing: 0.3px;
     }
-    .box-sell {
-        border-left: 5px solid #ef4444;
+    .hdr-buy {
+        background: rgba(34, 197, 94, 0.16);
+        color: #4ade80;
+        border-left: 4px solid #22c55e;
     }
-    .row-top {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-bottom: 6px;
+    .hdr-sell {
+        background: rgba(239, 68, 68, 0.16);
+        color: #f87171;
+        border-left: 4px solid #ef4444;
     }
-    .title-txt {
-        font-size: 0.98rem;
+    table.sig-tbl {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.80rem;
+        white-space: nowrap;
+    }
+    table.sig-tbl th {
+        background: #1e1b16;
+        color: #e6c88a;
+        font-weight: 800;
+        text-align: left;
+        padding: 7px 8px;
+        border-bottom: 1px solid #3d3325;
+        position: sticky;
+        top: 0;
+    }
+    table.sig-tbl td {
+        padding: 7px 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        color: #f6f1e7;
+        font-weight: 600;
+    }
+    table.sig-tbl tr:last-child td {
+        border-bottom: none;
+    }
+    .col-name {
         font-weight: 800;
         color: #fff8ea;
-        line-height: 1.3;
     }
-    .sub-meta {
-        font-size: 0.82rem;
-        color: #e6d8be;
-        margin-bottom: 8px;
+    .col-t {
+        color: #86efac;
+        font-weight: 700;
     }
-    .badge-buy {
-        background: rgba(34, 197, 94, 0.2);
-        color: #4ade80;
-        border: 1px solid #22c55e;
-        padding: 2px 8px;
-        border-radius: 999px;
-        font-size: 0.74rem;
-        font-weight: 800;
+    .col-sl {
+        color: #fca5a5;
+        font-weight: 700;
     }
-    .badge-sell {
-        background: rgba(239, 68, 68, 0.2);
-        color: #f87171;
-        border: 1px solid #ef4444;
-        padding: 2px 8px;
-        border-radius: 999px;
-        font-size: 0.74rem;
-        font-weight: 800;
-    }
-    .hit-yes {
+    .st-hit {
         background: #16a34a;
         color: #ffffff;
-        padding: 2px 8px;
-        border-radius: 6px;
-        font-size: 0.74rem;
+        padding: 2px 7px;
+        border-radius: 5px;
+        font-size: 0.72rem;
         font-weight: 800;
     }
-    .hit-sl {
+    .st-sl {
         background: #dc2626;
         color: #ffffff;
-        padding: 2px 8px;
-        border-radius: 6px;
-        font-size: 0.74rem;
+        padding: 2px 7px;
+        border-radius: 5px;
+        font-size: 0.72rem;
         font-weight: 800;
     }
-    .hit-live {
-        background: rgba(255, 255, 255, 0.08);
+    .st-live {
+        background: rgba(255, 255, 255, 0.1);
         color: #e8decb;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 2px 8px;
-        border-radius: 6px;
-        font-size: 0.74rem;
+        padding: 2px 7px;
+        border-radius: 5px;
+        font-size: 0.72rem;
         font-weight: 700;
     }
-    .lvl-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 6px;
-        margin-bottom: 8px;
-    }
-    .lvl-cell {
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(212, 163, 89, 0.22);
-        border-radius: 8px;
-        padding: 6px 4px;
-        text-align: center;
-    }
-    .lvl-lbl {
-        display: block;
-        font-size: 0.7rem;
-        font-weight: 700;
-        color: #c9b899;
-        letter-spacing: 0.4px;
-    }
-    .lvl-val {
-        display: block;
-        font-size: 0.86rem;
-        font-weight: 800;
-        color: #fff6e3;
-        margin-top: 2px;
-    }
-    .lvl-sl .lvl-val {
-        color: #fca5a5;
-    }
-    .lvl-t .lvl-val {
-        color: #86efac;
-    }
-    .why-txt {
-        font-size: 0.8rem;
-        color: #d6cbb7;
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 8px;
-        padding: 7px 9px;
-        line-height: 1.35;
-    }
-    .names-banner {
-        background: rgba(212, 163, 89, 0.1);
-        border: 1px solid rgba(212, 163, 89, 0.4);
-        border-radius: 10px;
-        padding: 10px 12px;
-        margin-bottom: 12px;
-        font-size: 0.88rem;
-        color: #fff3d6;
-        line-height: 1.45;
-    }
-    @media (max-width: 600px) {
-        .lvl-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-        .title-txt {
-            font-size: 0.92rem;
-        }
+    .empty-msg {
+        font-size: 0.82rem;
+        color: #b8ad99;
+        padding: 6px 10px;
     }
     </style>
     """,
@@ -215,8 +173,10 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
         pv_cum = (tp * vol).groupby(day_key).cumsum()
         v_cum = vol.groupby(day_key).cumsum().replace(0, np.nan)
         d["vwap"] = (pv_cum / v_cum).ffill().fillna(close.ewm(span=24, adjust=False).mean())
+        d["vol_ma20"] = vol.rolling(20).mean().fillna(0.0)
     else:
         d["vwap"] = close.ewm(span=24, adjust=False).mean()
+        d["vol_ma20"] = 0.0
 
     delta = close.diff()
     gain = delta.clip(lower=0).ewm(alpha=1 / 14, adjust=False).mean()
@@ -262,31 +222,33 @@ def check_hit_status(
 
     if side == "BUY":
         if max_h >= t3 or last_c >= t3:
-            return "T3 HIT", "hit-yes"
+            return "T3 HIT", "st-hit"
         if max_h >= t2 or last_c >= t2:
-            return "T2 HIT", "hit-yes"
+            return "T2 HIT", "st-hit"
         if max_h >= t1 or last_c >= t1:
-            return "T1 HIT", "hit-yes"
+            return "T1 HIT", "st-hit"
         if min_l <= sl or last_c <= sl:
-            return "SL HIT", "hit-sl"
-        return "LIVE", "hit-live"
+            return "SL HIT", "st-sl"
+        return "LIVE", "st-live"
 
     if min_l <= t3 or last_c <= t3:
-        return "T3 HIT", "hit-yes"
+        return "T3 HIT", "st-hit"
     if min_l <= t2 or last_c <= t2:
-        return "T2 HIT", "hit-yes"
+        return "T2 HIT", "st-hit"
     if min_l <= t1 or last_c <= t1:
-        return "T1 HIT", "hit-yes"
+        return "T1 HIT", "st-hit"
     if max_h >= sl or last_c >= sl:
-        return "SL HIT", "hit-sl"
-    return "LIVE", "hit-live"
+        return "SL HIT", "st-sl"
+    return "LIVE", "st-live"
 
 
 def evaluate_trade(
     d: pd.DataFrame, name: str, strike_step: int | None = None, is_index: bool = False
 ) -> dict | None:
     last = d.iloc[-1]
+    prev = d.iloc[-2]
     price = float(last["Close"])
+    prev_close = float(prev["Close"])
     ema10 = float(last["ema10"])
     ema50 = float(last["ema50"])
     vwap = float(last["vwap"])
@@ -299,42 +261,47 @@ def evaluate_trade(
     hh10 = float(last["hh10"])
     ll10 = float(last["ll10"])
 
+    vol_ok = True
+    if not is_index and float(last["vol_ma20"]) > 0 and "Volume" in d.columns:
+        vol_ok = float(last["Volume"]) >= float(last["vol_ma20"]) * 1.15
+
+    # Strong momentum + actual breakout confirmation (sirf chalne wale setups)
     buy_ok = (
-        (price > ema50)
-        and (ema10 >= ema50 * 0.999)
+        (price > prev_close)
+        and (price > ema10 > ema50)
         and (price > vwap)
-        and (rsi >= 55)
-        and (adx >= 20)
-        and ((price > res20) or (price > hh10) or (abs(price - res20) / max(price, 1e-6) <= 0.004))
+        and (58 <= rsi <= 76)
+        and (adx >= 23)
+        and ((price > res20) or (price > hh10))
+        and vol_ok
     )
 
     sell_ok = (
-        (price < ema50)
-        and (ema10 <= ema50 * 1.001)
+        (price < prev_close)
+        and (price < ema10 < ema50)
         and (price < vwap)
-        and (rsi <= 45)
-        and (adx >= 20)
-        and ((price < sup20) or (price < ll10) or (abs(price - sup20) / max(price, 1e-6) <= 0.004))
+        and (24 <= rsi <= 42)
+        and (adx >= 23)
+        and ((price < sup20) or (price < ll10))
+        and vol_ok
     )
 
     if buy_ok:
         side = "BUY"
-        strike = pick_strike(price, strike_step, "BUY") if strike_step else "-"
+        label = f"{name} ({pick_strike(price, strike_step, 'BUY')})" if strike_step else name
         entry = price
-        sl = max(0.0, entry - 2.0 * atr)
-        t1 = entry + 1.5 * atr
-        t2 = entry + 2.8 * atr
-        t3 = entry + 4.2 * atr
-        reason = f"Res {res20:.2f}/HH {hh10:.2f} | >50EMA & VWAP | RSI {rsi:.1f} | ADX {adx:.1f}"
+        sl = max(0.0, entry - 1.8 * atr)
+        t1 = entry + 1.4 * atr
+        t2 = entry + 2.6 * atr
+        t3 = entry + 3.8 * atr
     elif sell_ok:
         side = "SELL"
-        strike = pick_strike(price, strike_step, "SELL") if strike_step else "-"
+        label = f"{name} ({pick_strike(price, strike_step, 'SELL')})" if strike_step else name
         entry = price
-        sl = entry + 2.0 * atr
-        t1 = max(0.0, entry - 1.5 * atr)
-        t2 = max(0.0, entry - 2.8 * atr)
-        t3 = max(0.0, entry - 4.2 * atr)
-        reason = f"Sup {sup20:.2f}/LL {ll10:.2f} | <50EMA & VWAP | RSI {rsi:.1f} | ADX {adx:.1f}"
+        sl = entry + 1.8 * atr
+        t1 = max(0.0, entry - 1.4 * atr)
+        t2 = max(0.0, entry - 2.6 * atr)
+        t3 = max(0.0, entry - 3.8 * atr)
     else:
         return None
 
@@ -363,16 +330,15 @@ def evaluate_trade(
 
     return {
         "name": name,
+        "label": label,
         "is_index": is_index,
         "side": side,
-        "strike": strike,
         "cmp": round(price, 2),
         "entry": locked["entry"],
         "sl": locked["sl"],
         "t1": locked["t1"],
         "t2": locked["t2"],
         "t3": locked["t3"],
-        "reason": reason,
         "hit_txt": hit_txt,
         "hit_cls": hit_cls,
         "score": (atr_pct * 2.2) + (adx * 0.6),
@@ -390,36 +356,40 @@ def load_15m(ticker: str, period: str = "10d", interval: str = "15m") -> pd.Data
         return pd.DataFrame()
 
 
-def render_card(item: dict, is_fno: bool):
-    is_buy = item["side"] == "BUY"
-    box_cls = f"{'box-fno' if is_fno else 'stock-card'} {'box-buy' if is_buy else 'box-sell'}"
-    side_cls = "badge-buy" if is_buy else "badge-sell"
-    left_label = f"{item['name']} • Strike: {item['strike']}" if is_fno else f"{item['name']}"
-
-    st.markdown(
-        f"""
-        <div class="{box_cls}">
-            <div class="row-top">
-                <span class="title-txt">{left_label}</span>
-                <span>
-                    <span class="{side_cls}">{item['side']}</span>
-                    <span class="{item['hit_cls']}">{item['hit_txt']}</span>
-                </span>
-            </div>
-            <div class="sub-meta">
-                <b>Entry:</b> {item['entry']:.2f} &nbsp;|&nbsp; <b>CMP:</b> {item['cmp']:.2f}
-            </div>
-            <div class="lvl-grid">
-                <div class="lvl-cell lvl-t"><span class="lvl-lbl">T1</span><span class="lvl-val">{item['t1']:.2f}</span></div>
-                <div class="lvl-cell lvl-t"><span class="lvl-lbl">T2</span><span class="lvl-val">{item['t2']:.2f}</span></div>
-                <div class="lvl-cell lvl-t"><span class="lvl-lbl">T3</span><span class="lvl-val">{item['t3']:.2f}</span></div>
-                <div class="lvl-cell lvl-sl"><span class="lvl-lbl">SL</span><span class="lvl-val">{item['sl']:.2f}</span></div>
-            </div>
-            <div class="why-txt"><b>Reason:</b> {item['reason']}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+def build_table_html(items: list[dict], col_title: str, entry_title: str) -> str:
+    rows_html = ""
+    for it in items:
+        rows_html += (
+            f"<tr>"
+            f"<td class='col-name'>{it['label']}</td>"
+            f"<td>{it['entry']:.2f}</td>"
+            f"<td>{it['cmp']:.2f}</td>"
+            f"<td class='col-t'>{it['t1']:.2f}</td>"
+            f"<td class='col-t'>{it['t2']:.2f}</td>"
+            f"<td class='col-t'>{it['t3']:.2f}</td>"
+            f"<td class='col-sl'>{it['sl']:.2f}</td>"
+            f"<td><span class='{it['hit_cls']}'>{it['hit_txt']}</span></td>"
+            f"</tr>"
+        )
+    return f"""
+    <table class="sig-tbl">
+        <thead>
+            <tr>
+                <th>{col_title}</th>
+                <th>{entry_title}</th>
+                <th>CMP</th>
+                <th>T1</th>
+                <th>T2</th>
+                <th>T3</th>
+                <th>SL</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {rows_html}
+        </tbody>
+    </table>
+    """
 
 
 st.sidebar.header("Scanner Controls")
@@ -432,27 +402,38 @@ if st.sidebar.button("Refresh Now"):
     st.cache_data.clear()
 
 st.title("🎯 ARVANO F&O + Active Stocks")
-st.caption(f"Mobile View • {tf} • Auto-refresh {refresh_sec}s • F&O Strike & Stocks (T1 / T2 / T3 / SL)")
+st.caption(f"{tf} • Auto-Refresh {refresh_sec}s • Pehle BUY (Call) phir SELL (Put) — Single Box View")
 
-st.subheader("1. F&O (Strike • T1 • T2 • T3 • SL)")
-fno_active = []
+# 1. F&O SINGLE BOX (NIFTY 50, BANK NIFTY, SENSEX)
+fno_buy, fno_sell = [], []
 for idx_name, cfg in FNO_INDICES.items():
     df_i = load_15m(cfg["ticker"], period=period_map[tf], interval=tf)
     if not df_i.empty:
         sig_i = evaluate_trade(df_i, idx_name, strike_step=cfg["step"], is_index=True)
         if sig_i:
-            fno_active.append(sig_i)
+            if sig_i["side"] == "BUY":
+                fno_buy.append(sig_i)
+            else:
+                fno_sell.append(sig_i)
 
-if fno_active:
-    for f in fno_active:
-        render_card(f, is_fno=True)
+st.subheader("1. F&O (Nifty 50 • Bank Nifty • Sensex)")
+fno_html = '<div class="main-box">'
+fno_html += '<div class="sec-hdr hdr-buy">▲ F&O BUY (CALL SIDE)</div>'
+if fno_buy:
+    fno_html += build_table_html(fno_buy, "Index / Strike", "Buy At")
 else:
-    st.info("Abhi F&O mein koi clear BUY/SELL setup nahi hai.")
+    fno_html += '<div class="empty-msg">Abhi F&O BUY (CE) ka koi active setup nahi hai.</div>'
 
-st.markdown("---")
+fno_html += '<div class="sec-hdr hdr-sell">▼ F&O SELL (PUT SIDE)</div>'
+if fno_sell:
+    fno_html += build_table_html(fno_sell, "Index / Strike", "Sell At")
+else:
+    fno_html += '<div class="empty-msg">Abhi F&O SELL (PE) ka koi active setup nahi hai.</div>'
+fno_html += "</div>"
+st.markdown(fno_html, unsafe_allow_html=True)
 
-st.subheader("2. Stocks — BUY & SELL (T1 • T2 • T3 • SL)")
-active_stocks = []
+# 2. ACTIVE STOCKS SINGLE BOX (PEHLE BUY, NEECHE SELL)
+stock_buy, stock_sell = [], []
 prog = st.progress(0, text="Scanning Top 100 NSE...")
 for idx, sym in enumerate(TOP_100_NSE):
     df_s = load_15m(sym, period=period_map[tf], interval=tf)
@@ -460,22 +441,31 @@ for idx, sym in enumerate(TOP_100_NSE):
         s_name = sym.replace(".NS", "")
         sig_s = evaluate_trade(df_s, s_name, strike_step=None, is_index=False)
         if sig_s:
-            active_stocks.append(sig_s)
+            if sig_s["side"] == "BUY":
+                stock_buy.append(sig_s)
+            else:
+                stock_sell.append(sig_s)
     prog.progress((idx + 1) / len(TOP_100_NSE), text=f"Scanning ({idx + 1}/{len(TOP_100_NSE)})...")
 prog.empty()
 
-active_stocks.sort(key=lambda x: x["score"], reverse=True)
+stock_buy.sort(key=lambda x: x["score"], reverse=True)
+stock_sell.sort(key=lambda x: x["score"], reverse=True)
 
-if active_stocks:
-    names_joined = " • ".join([f"{x['name']} ({x['side']})" for x in active_stocks])
-    st.markdown(
-        f'<div class="names-banner"><b>Active Stocks:</b> {names_joined}</div>',
-        unsafe_allow_html=True,
-    )
-    for st_item in active_stocks:
-        render_card(st_item, is_fno=False)
+st.subheader("2. Active Stocks (Pehle BUY • Neeche SELL)")
+stk_html = '<div class="main-box">'
+stk_html += f'<div class="sec-hdr hdr-buy">▲ BUY STOCKS — LENA HAI ({len(stock_buy)})</div>'
+if stock_buy:
+    stk_html += build_table_html(stock_buy, "Stock", "Buy At")
 else:
-    st.info("Abhi Top 100 NSE mein koi active BUY/SELL stock setup nahi hai.")
+    stk_html += '<div class="empty-msg">Abhi BUY side mein koi active stock nahi hai.</div>'
+
+stk_html += f'<div class="sec-hdr hdr-sell">▼ SELL STOCKS — BECHNA HAI ({len(stock_sell)})</div>'
+if stock_sell:
+    stk_html += build_table_html(stock_sell, "Stock", "Sell At")
+else:
+    stk_html += '<div class="empty-msg">Abhi SELL side mein koi active stock nahi hai.</div>'
+stk_html += "</div>"
+st.markdown(stk_html, unsafe_allow_html=True)
 
 if auto_refresh:
     time.sleep(refresh_sec)
