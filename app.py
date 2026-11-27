@@ -5,7 +5,7 @@ import streamlit as st
 import yfinance as yf
 
 st.set_page_config(
-    page_title="ARVANO F&O + Active Stocks",
+    page_title="ARVANO F&O + Gold/Silver + Active Stocks",
     page_icon="🎯",
     layout="wide",
 )
@@ -59,13 +59,20 @@ st.markdown(
         position: sticky;
         top: 0;
     }
-    table.sig-tbl td {
-        padding: 7px 8px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    table.sig-tbl td.main-cell {
+        padding: 7px 8px 3px 8px;
         color: #f6f1e7;
         font-weight: 600;
     }
-    table.sig-tbl tr:last-child td {
+    table.sig-tbl td.reason-cell {
+        padding: 0px 8px 8px 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        color: #d6cbb7;
+        font-size: 0.75rem;
+        font-weight: 500;
+        white-space: normal;
+    }
+    table.sig-tbl tr.reason-row:last-child td.reason-cell {
         border-bottom: none;
     }
     .col-name {
@@ -78,6 +85,10 @@ st.markdown(
     }
     .col-sl {
         color: #fca5a5;
+        font-weight: 700;
+    }
+    .reason-tag {
+        color: #e6c88a;
         font-weight: 700;
     }
     .st-hit {
@@ -114,10 +125,12 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-FNO_INDICES = {
-    "NIFTY 50": {"ticker": "^NSEI", "step": 50},
-    "BANK NIFTY": {"ticker": "^NSEBANK", "step": 100},
-    "SENSEX": {"ticker": "^BSESN", "step": 100},
+FNO_AND_METALS = {
+    "NIFTY 50": {"ticker": "^NSEI", "step": 50, "is_index": True},
+    "BANK NIFTY": {"ticker": "^NSEBANK", "step": 100, "is_index": True},
+    "SENSEX": {"ticker": "^BSESN", "step": 100, "is_index": True},
+    "GOLD": {"ticker": "GC=F", "step": None, "is_index": True},
+    "SILVER": {"ticker": "SI=F", "step": None, "is_index": True},
 }
 
 TOP_100_NSE = [
@@ -261,11 +274,12 @@ def evaluate_trade(
     hh10 = float(last["hh10"])
     ll10 = float(last["ll10"])
 
+    vol_ratio = 1.0
     vol_ok = True
     if not is_index and float(last["vol_ma20"]) > 0 and "Volume" in d.columns:
-        vol_ok = float(last["Volume"]) >= float(last["vol_ma20"]) * 1.15
+        vol_ratio = float(last["Volume"]) / float(last["vol_ma20"])
+        vol_ok = vol_ratio >= 1.15
 
-    # Strong momentum + actual breakout confirmation (sirf chalne wale setups)
     buy_ok = (
         (price > prev_close)
         and (price > ema10 > ema50)
@@ -294,6 +308,9 @@ def evaluate_trade(
         t1 = entry + 1.4 * atr
         t2 = entry + 2.6 * atr
         t3 = entry + 3.8 * atr
+        brk = f"Res {res20:.2f} breakout" if price > res20 else f"HH {hh10:.2f} breakout"
+        vol_part = f" | Vol {vol_ratio:.1f}x" if not is_index else ""
+        reason = f"{brk}, >10/50 EMA & VWAP ({vwap:.2f}), RSI {rsi:.1f}, ADX {adx:.1f}{vol_part}"
     elif sell_ok:
         side = "SELL"
         label = f"{name} ({pick_strike(price, strike_step, 'SELL')})" if strike_step else name
@@ -302,6 +319,9 @@ def evaluate_trade(
         t1 = max(0.0, entry - 1.4 * atr)
         t2 = max(0.0, entry - 2.6 * atr)
         t3 = max(0.0, entry - 3.8 * atr)
+        brk = f"Sup {sup20:.2f} breakdown" if price < sup20 else f"LL {ll10:.2f} breakdown"
+        vol_part = f" | Vol {vol_ratio:.1f}x" if not is_index else ""
+        reason = f"{brk}, <10/50 EMA & VWAP ({vwap:.2f}), RSI {rsi:.1f}, ADX {adx:.1f}{vol_part}"
     else:
         return None
 
@@ -339,6 +359,7 @@ def evaluate_trade(
         "t1": locked["t1"],
         "t2": locked["t2"],
         "t3": locked["t3"],
+        "reason": reason,
         "hit_txt": hit_txt,
         "hit_cls": hit_cls,
         "score": (atr_pct * 2.2) + (adx * 0.6),
@@ -361,14 +382,17 @@ def build_table_html(items: list[dict], col_title: str, entry_title: str) -> str
     for it in items:
         rows_html += (
             f"<tr>"
-            f"<td class='col-name'>{it['label']}</td>"
-            f"<td>{it['entry']:.2f}</td>"
-            f"<td>{it['cmp']:.2f}</td>"
-            f"<td class='col-t'>{it['t1']:.2f}</td>"
-            f"<td class='col-t'>{it['t2']:.2f}</td>"
-            f"<td class='col-t'>{it['t3']:.2f}</td>"
-            f"<td class='col-sl'>{it['sl']:.2f}</td>"
-            f"<td><span class='{it['hit_cls']}'>{it['hit_txt']}</span></td>"
+            f"<td class='main-cell col-name'>{it['label']}</td>"
+            f"<td class='main-cell'>{it['entry']:.2f}</td>"
+            f"<td class='main-cell'>{it['cmp']:.2f}</td>"
+            f"<td class='main-cell col-t'>{it['t1']:.2f}</td>"
+            f"<td class='main-cell col-t'>{it['t2']:.2f}</td>"
+            f"<td class='main-cell col-t'>{it['t3']:.2f}</td>"
+            f"<td class='main-cell col-sl'>{it['sl']:.2f}</td>"
+            f"<td class='main-cell'><span class='{it['hit_cls']}'>{it['hit_txt']}</span></td>"
+            f"</tr>"
+            f"<tr class='reason-row'>"
+            f"<td class='reason-cell' colspan='8'><span class='reason-tag'>Kyun chala ({it['side']}):</span> {it['reason']}</td>"
             f"</tr>"
         )
     return f"""
@@ -401,34 +425,34 @@ period_map = {"15m": "10d", "30m": "15d"}
 if st.sidebar.button("Refresh Now"):
     st.cache_data.clear()
 
-st.title("🎯 ARVANO F&O + Active Stocks")
-st.caption(f"{tf} • Auto-Refresh {refresh_sec}s • Pehle BUY (Call) phir SELL (Put) — Single Box View")
+st.title("🎯 ARVANO F&O + Gold/Silver + Active Stocks")
+st.caption(f"{tf} • Auto-Refresh {refresh_sec}s • Pehle BUY phir SELL • Har row ke neeche Reason")
 
-# 1. F&O SINGLE BOX (NIFTY 50, BANK NIFTY, SENSEX)
+# 1. F&O + GOLD & SILVER SINGLE BOX
 fno_buy, fno_sell = [], []
-for idx_name, cfg in FNO_INDICES.items():
+for idx_name, cfg in FNO_AND_METALS.items():
     df_i = load_15m(cfg["ticker"], period=period_map[tf], interval=tf)
     if not df_i.empty:
-        sig_i = evaluate_trade(df_i, idx_name, strike_step=cfg["step"], is_index=True)
+        sig_i = evaluate_trade(df_i, idx_name, strike_step=cfg["step"], is_index=cfg["is_index"])
         if sig_i:
             if sig_i["side"] == "BUY":
                 fno_buy.append(sig_i)
             else:
                 fno_sell.append(sig_i)
 
-st.subheader("1. F&O (Nifty 50 • Bank Nifty • Sensex)")
+st.subheader("1. F&O & Gold/Silver (Nifty • Bank Nifty • Sensex • Gold • Silver)")
 fno_html = '<div class="main-box">'
-fno_html += '<div class="sec-hdr hdr-buy">▲ F&O BUY (CALL SIDE)</div>'
+fno_html += '<div class="sec-hdr hdr-buy">▲ BUY (CALL / LONG)</div>'
 if fno_buy:
-    fno_html += build_table_html(fno_buy, "Index / Strike", "Buy At")
+    fno_html += build_table_html(fno_buy, "Asset / Strike", "Buy At")
 else:
-    fno_html += '<div class="empty-msg">Abhi F&O BUY (CE) ka koi active setup nahi hai.</div>'
+    fno_html += '<div class="empty-msg">Abhi BUY side mein koi active setup nahi hai.</div>'
 
-fno_html += '<div class="sec-hdr hdr-sell">▼ F&O SELL (PUT SIDE)</div>'
+fno_html += '<div class="sec-hdr hdr-sell">▼ SELL (PUT / SHORT)</div>'
 if fno_sell:
-    fno_html += build_table_html(fno_sell, "Index / Strike", "Sell At")
+    fno_html += build_table_html(fno_sell, "Asset / Strike", "Sell At")
 else:
-    fno_html += '<div class="empty-msg">Abhi F&O SELL (PE) ka koi active setup nahi hai.</div>'
+    fno_html += '<div class="empty-msg">Abhi SELL side mein koi active setup nahi hai.</div>'
 fno_html += "</div>"
 st.markdown(fno_html, unsafe_allow_html=True)
 
