@@ -60,7 +60,7 @@ st.markdown(
         top: 0;
     }
     table.sig-tbl td.main-cell {
-        padding: 7px 8px 3px 8px;
+        padding: 7px 8px 4px 8px;
         color: #f6f1e7;
         font-weight: 600;
     }
@@ -86,6 +86,20 @@ st.markdown(
     .col-sl {
         color: #fca5a5;
         font-weight: 700;
+    }
+    .t-hit-cell {
+        background: rgba(22, 163, 74, 0.35) !important;
+        color: #4ade80 !important;
+        font-weight: 900 !important;
+        border: 1px solid #22c55e;
+        border-radius: 5px;
+    }
+    .sl-hit-cell {
+        background: rgba(220, 38, 38, 0.38) !important;
+        color: #ff8080 !important;
+        font-weight: 900 !important;
+        border: 1px solid #ef4444;
+        border-radius: 5px;
     }
     .reason-tag {
         color: #e6c88a;
@@ -223,9 +237,9 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     return d.dropna(subset=["ema50", "atr14", "res20", "sup20", "hh10", "ll10"])
 
 
-def check_hit_status(
+def evaluate_hit_flags(
     d: pd.DataFrame, start_pos: int, side: str, sl: float, t1: float, t2: float, t3: float
-) -> tuple[str, str]:
+) -> dict:
     sub = d.iloc[start_pos:]
     if sub.empty:
         sub = d.tail(1)
@@ -234,25 +248,35 @@ def check_hit_status(
     last_c = float(d["Close"].iloc[-1])
 
     if side == "BUY":
-        if max_h >= t3 or last_c >= t3:
-            return "T3 HIT", "st-hit"
-        if max_h >= t2 or last_c >= t2:
-            return "T2 HIT", "st-hit"
-        if max_h >= t1 or last_c >= t1:
-            return "T1 HIT", "st-hit"
-        if min_l <= sl or last_c <= sl:
-            return "SL HIT", "st-sl"
-        return "LIVE", "st-live"
+        t1_hit = (max_h >= t1) or (last_c >= t1)
+        t2_hit = (max_h >= t2) or (last_c >= t2)
+        t3_hit = (max_h >= t3) or (last_c >= t3)
+        sl_hit = (not t1_hit) and ((min_l <= sl) or (last_c <= sl))
+    else:
+        t1_hit = (min_l <= t1) or (last_c <= t1)
+        t2_hit = (min_l <= t2) or (last_c <= t2)
+        t3_hit = (min_l <= t3) or (last_c <= t3)
+        sl_hit = (not t1_hit) and ((max_h >= sl) or (last_c >= sl))
 
-    if min_l <= t3 or last_c <= t3:
-        return "T3 HIT", "st-hit"
-    if min_l <= t2 or last_c <= t2:
-        return "T2 HIT", "st-hit"
-    if min_l <= t1 or last_c <= t1:
-        return "T1 HIT", "st-hit"
-    if max_h >= sl or last_c >= sl:
-        return "SL HIT", "st-sl"
-    return "LIVE", "st-live"
+    if t3_hit:
+        status_txt, status_cls = "T3 HIT", "st-hit"
+    elif t2_hit:
+        status_txt, status_cls = "T2 HIT", "st-hit"
+    elif t1_hit:
+        status_txt, status_cls = "T1 HIT", "st-hit"
+    elif sl_hit:
+        status_txt, status_cls = "SL HIT", "st-sl"
+    else:
+        status_txt, status_cls = "LIVE", "st-live"
+
+    return {
+        "t1_hit": t1_hit,
+        "t2_hit": t2_hit,
+        "t3_hit": t3_hit,
+        "sl_hit": sl_hit,
+        "status_txt": status_txt,
+        "status_cls": status_cls,
+    }
 
 
 def evaluate_trade(
@@ -261,6 +285,7 @@ def evaluate_trade(
     last = d.iloc[-1]
     prev = d.iloc[-2]
     price = float(last["Close"])
+    open_p = float(last["Open"])
     prev_close = float(prev["Close"])
     ema10 = float(last["ema10"])
     ema50 = float(last["ema50"])
@@ -278,24 +303,29 @@ def evaluate_trade(
     vol_ok = True
     if not is_index and float(last["vol_ma20"]) > 0 and "Volume" in d.columns:
         vol_ratio = float(last["Volume"]) / float(last["vol_ma20"])
-        vol_ok = vol_ratio >= 1.15
+        vol_ok = vol_ratio >= 1.25
 
+    # Target-oriented high-momentum breakout filter (fake breakouts & choppy zones avoid karne ke liye)
     buy_ok = (
-        (price > prev_close)
+        (price > open_p)
+        and (price > prev_close)
         and (price > ema10 > ema50)
+        and (ema10 > vwap)
         and (price > vwap)
-        and (58 <= rsi <= 76)
-        and (adx >= 23)
+        and (60 <= rsi <= 75)
+        and (adx >= 25)
         and ((price > res20) or (price > hh10))
         and vol_ok
     )
 
     sell_ok = (
-        (price < prev_close)
+        (price < open_p)
+        and (price < prev_close)
         and (price < ema10 < ema50)
+        and (ema10 < vwap)
         and (price < vwap)
-        and (24 <= rsi <= 42)
-        and (adx >= 23)
+        and (25 <= rsi <= 40)
+        and (adx >= 25)
         and ((price < sup20) or (price < ll10))
         and vol_ok
     )
@@ -304,24 +334,24 @@ def evaluate_trade(
         side = "BUY"
         label = f"{name} ({pick_strike(price, strike_step, 'BUY')})" if strike_step else name
         entry = price
-        sl = max(0.0, entry - 1.8 * atr)
-        t1 = entry + 1.4 * atr
-        t2 = entry + 2.6 * atr
-        t3 = entry + 3.8 * atr
+        sl = max(0.0, entry - 1.2 * atr)
+        t1 = entry + 1.2 * atr
+        t2 = entry + 2.2 * atr
+        t3 = entry + 3.4 * atr
         brk = f"Res {res20:.2f} breakout" if price > res20 else f"HH {hh10:.2f} breakout"
         vol_part = f" | Vol {vol_ratio:.1f}x" if not is_index else ""
-        reason = f"{brk}, >10/50 EMA & VWAP ({vwap:.2f}), RSI {rsi:.1f}, ADX {adx:.1f}{vol_part}"
+        reason = f"{brk}, 10>50 EMA & VWAP ({vwap:.2f}), RSI {rsi:.1f}, ADX {adx:.1f}{vol_part}"
     elif sell_ok:
         side = "SELL"
         label = f"{name} ({pick_strike(price, strike_step, 'SELL')})" if strike_step else name
         entry = price
-        sl = entry + 1.8 * atr
-        t1 = max(0.0, entry - 1.4 * atr)
-        t2 = max(0.0, entry - 2.6 * atr)
-        t3 = max(0.0, entry - 3.8 * atr)
+        sl = entry + 1.2 * atr
+        t1 = max(0.0, entry - 1.2 * atr)
+        t2 = max(0.0, entry - 2.2 * atr)
+        t3 = max(0.0, entry - 3.4 * atr)
         brk = f"Sup {sup20:.2f} breakdown" if price < sup20 else f"LL {ll10:.2f} breakdown"
         vol_part = f" | Vol {vol_ratio:.1f}x" if not is_index else ""
-        reason = f"{brk}, <10/50 EMA & VWAP ({vwap:.2f}), RSI {rsi:.1f}, ADX {adx:.1f}{vol_part}"
+        reason = f"{brk}, 10<50 EMA & VWAP ({vwap:.2f}), RSI {rsi:.1f}, ADX {adx:.1f}{vol_part}"
     else:
         return None
 
@@ -338,7 +368,7 @@ def evaluate_trade(
         }
 
     locked = st.session_state[lock_key]
-    hit_txt, hit_cls = check_hit_status(
+    hits = evaluate_hit_flags(
         d=d,
         start_pos=locked["pos"],
         side=side,
@@ -360,8 +390,7 @@ def evaluate_trade(
         "t2": locked["t2"],
         "t3": locked["t3"],
         "reason": reason,
-        "hit_txt": hit_txt,
-        "hit_cls": hit_cls,
+        "hits": hits,
         "score": (atr_pct * 2.2) + (adx * 0.6),
     }
 
@@ -380,16 +409,22 @@ def load_15m(ticker: str, period: str = "10d", interval: str = "15m") -> pd.Data
 def build_table_html(items: list[dict], col_title: str, entry_title: str) -> str:
     rows_html = ""
     for it in items:
+        h = it["hits"]
+        t1_cls = "main-cell t-hit-cell" if h["t1_hit"] else "main-cell col-t"
+        t2_cls = "main-cell t-hit-cell" if h["t2_hit"] else "main-cell col-t"
+        t3_cls = "main-cell t-hit-cell" if h["t3_hit"] else "main-cell col-t"
+        sl_cls = "main-cell sl-hit-cell" if h["sl_hit"] else "main-cell col-sl"
+
         rows_html += (
             f"<tr>"
             f"<td class='main-cell col-name'>{it['label']}</td>"
             f"<td class='main-cell'>{it['entry']:.2f}</td>"
             f"<td class='main-cell'>{it['cmp']:.2f}</td>"
-            f"<td class='main-cell col-t'>{it['t1']:.2f}</td>"
-            f"<td class='main-cell col-t'>{it['t2']:.2f}</td>"
-            f"<td class='main-cell col-t'>{it['t3']:.2f}</td>"
-            f"<td class='main-cell col-sl'>{it['sl']:.2f}</td>"
-            f"<td class='main-cell'><span class='{it['hit_cls']}'>{it['hit_txt']}</span></td>"
+            f"<td class='{t1_cls}'>{it['t1']:.2f}</td>"
+            f"<td class='{t2_cls}'>{it['t2']:.2f}</td>"
+            f"<td class='{t3_cls}'>{it['t3']:.2f}</td>"
+            f"<td class='{sl_cls}'>{it['sl']:.2f}</td>"
+            f"<td class='main-cell'><span class='{h['status_cls']}'>{h['status_txt']}</span></td>"
             f"</tr>"
             f"<tr class='reason-row'>"
             f"<td class='reason-cell' colspan='8'><span class='reason-tag'>Kyun chala ({it['side']}):</span> {it['reason']}</td>"
@@ -426,7 +461,7 @@ if st.sidebar.button("Refresh Now"):
     st.cache_data.clear()
 
 st.title("🎯 ARVANO F&O + Gold/Silver + Active Stocks")
-st.caption(f"{tf} • Auto-Refresh {refresh_sec}s • Pehle BUY phir SELL • Har row ke neeche Reason")
+st.caption(f"{tf} • Auto-Refresh {refresh_sec}s • T1/T2/T3 Hit = Green, SL Hit = Red • Reason Neeche")
 
 # 1. F&O + GOLD & SILVER SINGLE BOX
 fno_buy, fno_sell = [], []
