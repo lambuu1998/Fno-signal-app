@@ -5,7 +5,7 @@ import streamlit as st
 import yfinance as yf
 
 st.set_page_config(
-    page_title="ARVANO Single-Screen F&O + Active Stocks",
+    page_title="ARVANO F&O + Active Stocks",
     page_icon="🎯",
     layout="wide",
 )
@@ -17,104 +17,139 @@ st.markdown(
         background-color: #0b0b0e;
         color: #f6f1e7;
     }
-    .box-fno {
-        background: linear-gradient(145deg, #151419 0%, #1d1914 100%);
-        border: 1px solid #3d3325;
+    .box-fno, .stock-card {
+        background: linear-gradient(145deg, #151419 0%, #1b1712 100%);
+        border: 1px solid #3a3022;
         border-radius: 12px;
-        padding: 14px 16px;
-        margin-bottom: 12px;
+        padding: 12px 13px;
+        margin-bottom: 11px;
     }
     .box-buy {
-        border-left: 6px solid #22c55e;
+        border-left: 5px solid #22c55e;
     }
     .box-sell {
-        border-left: 6px solid #ef4444;
+        border-left: 5px solid #ef4444;
     }
     .row-top {
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 6px;
         margin-bottom: 6px;
     }
     .title-txt {
-        font-size: 1.05rem;
+        font-size: 0.98rem;
         font-weight: 800;
         color: #fff8ea;
+        line-height: 1.3;
+    }
+    .sub-meta {
+        font-size: 0.82rem;
+        color: #e6d8be;
+        margin-bottom: 8px;
     }
     .badge-buy {
-        background: rgba(34, 197, 94, 0.22);
+        background: rgba(34, 197, 94, 0.2);
         color: #4ade80;
         border: 1px solid #22c55e;
-        padding: 3px 10px;
+        padding: 2px 8px;
         border-radius: 999px;
-        font-size: 0.78rem;
+        font-size: 0.74rem;
         font-weight: 800;
     }
     .badge-sell {
-        background: rgba(239, 68, 68, 0.22);
+        background: rgba(239, 68, 68, 0.2);
         color: #f87171;
         border: 1px solid #ef4444;
-        padding: 3px 10px;
+        padding: 2px 8px;
         border-radius: 999px;
-        font-size: 0.78rem;
+        font-size: 0.74rem;
         font-weight: 800;
     }
     .hit-yes {
         background: #16a34a;
         color: #ffffff;
-        padding: 3px 10px;
+        padding: 2px 8px;
         border-radius: 6px;
-        font-size: 0.78rem;
+        font-size: 0.74rem;
         font-weight: 800;
     }
     .hit-sl {
         background: #dc2626;
         color: #ffffff;
-        padding: 3px 10px;
+        padding: 2px 8px;
         border-radius: 6px;
-        font-size: 0.78rem;
+        font-size: 0.74rem;
         font-weight: 800;
     }
     .hit-live {
         background: rgba(255, 255, 255, 0.08);
         color: #e8decb;
         border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 3px 10px;
+        padding: 2px 8px;
         border-radius: 6px;
-        font-size: 0.78rem;
+        font-size: 0.74rem;
         font-weight: 700;
     }
-    .lvl-txt {
-        font-size: 0.92rem;
-        color: #f3e6cc;
-        line-height: 1.45;
-        margin-bottom: 6px;
+    .lvl-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        margin-bottom: 8px;
+    }
+    .lvl-cell {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(212, 163, 89, 0.22);
+        border-radius: 8px;
+        padding: 6px 4px;
+        text-align: center;
+    }
+    .lvl-lbl {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #c9b899;
+        letter-spacing: 0.4px;
+    }
+    .lvl-val {
+        display: block;
+        font-size: 0.86rem;
+        font-weight: 800;
+        color: #fff6e3;
+        margin-top: 2px;
+    }
+    .lvl-sl .lvl-val {
+        color: #fca5a5;
+    }
+    .lvl-t .lvl-val {
+        color: #86efac;
     }
     .why-txt {
-        font-size: 0.84rem;
+        font-size: 0.8rem;
         color: #d6cbb7;
-        background: rgba(255, 255, 255, 0.035);
+        background: rgba(255, 255, 255, 0.03);
         border-radius: 8px;
-        padding: 8px 10px;
-    }
-    .stock-card {
-        background: #141318;
-        border: 1px solid #2e271e;
-        border-radius: 10px;
-        padding: 12px 15px;
-        margin-bottom: 9px;
+        padding: 7px 9px;
+        line-height: 1.35;
     }
     .names-banner {
         background: rgba(212, 163, 89, 0.1);
         border: 1px solid rgba(212, 163, 89, 0.4);
         border-radius: 10px;
-        padding: 11px 14px;
-        margin-bottom: 14px;
-        font-size: 0.95rem;
+        padding: 10px 12px;
+        margin-bottom: 12px;
+        font-size: 0.88rem;
         color: #fff3d6;
-        line-height: 1.5;
+        line-height: 1.45;
+    }
+    @media (max-width: 600px) {
+        .lvl-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .title-txt {
+            font-size: 0.92rem;
+        }
     }
     </style>
     """,
@@ -154,7 +189,7 @@ TOP_100_NSE = list(dict.fromkeys(TOP_100_NSE))
 
 def pick_strike(price: float, step: int, side: str) -> str:
     atm = int(round(price / step) * step)
-    return f"BUY {atm + step} CE" if side == "BUY" else f"BUY {atm - step} PE"
+    return f"{atm + step} CE" if side == "BUY" else f"{atm - step} PE"
 
 
 def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
@@ -171,11 +206,9 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     low = d["Low"].astype(float)
     vol = d["Volume"].fillna(0).astype(float) if "Volume" in d.columns else pd.Series(0.0, index=d.index)
 
-    # 1. Customized 10 EMA & 50 EMA
     d["ema10"] = close.ewm(span=10, adjust=False).mean()
     d["ema50"] = close.ewm(span=50, adjust=False).mean()
 
-    # 2. VWAP
     tp = (high + low + close) / 3.0
     if vol.sum() > 0:
         day_key = d.index.date
@@ -185,14 +218,12 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     else:
         d["vwap"] = close.ewm(span=24, adjust=False).mean()
 
-    # 3. RSI (14)
     delta = close.diff()
     gain = delta.clip(lower=0).ewm(alpha=1 / 14, adjust=False).mean()
     loss = (-delta.clip(upper=0)).ewm(alpha=1 / 14, adjust=False).mean()
     rs = gain / loss.replace(0, np.nan)
     d["rsi14"] = (100 - (100 / (1 + rs))).fillna(50.0)
 
-    # 4. ATR (14) & ATR%
     prev_close = close.shift(1)
     tr = pd.concat(
         [(high - low).abs(), (high - prev_close).abs(), (low - prev_close).abs()],
@@ -201,7 +232,6 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     d["atr14"] = tr.ewm(alpha=1 / 14, adjust=False).mean()
     d["atr_pct"] = (d["atr14"] / close.replace(0, np.nan)) * 100.0
 
-    # 5. ADX (14)
     up_move = high.diff()
     down_move = -low.diff()
     plus_dm = np.where((up_move > down_move) & (up_move > 0), up_move, 0.0)
@@ -212,7 +242,6 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     dx = (100 * (plus_di - minus_di).abs() / (plus_di + minus_di).replace(0, np.nan)).fillna(0.0)
     d["adx14"] = dx.ewm(alpha=1 / 14, adjust=False).mean()
 
-    # Support / Resistance & Pattern Break Levels
     d["res20"] = high.shift(1).rolling(20).max()
     d["sup20"] = low.shift(1).rolling(20).min()
     d["hh10"] = high.shift(1).rolling(10).max()
@@ -221,7 +250,9 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     return d.dropna(subset=["ema50", "atr14", "res20", "sup20", "hh10", "ll10"])
 
 
-def check_hit_status(d: pd.DataFrame, start_pos: int, side: str, sl: float, t1: float, t2: float, t3: float) -> tuple[str, str]:
+def check_hit_status(
+    d: pd.DataFrame, start_pos: int, side: str, sl: float, t1: float, t2: float, t3: float
+) -> tuple[str, str]:
     sub = d.iloc[start_pos:]
     if sub.empty:
         sub = d.tail(1)
@@ -238,7 +269,7 @@ def check_hit_status(d: pd.DataFrame, start_pos: int, side: str, sl: float, t1: 
             return "T1 HIT", "hit-yes"
         if min_l <= sl or last_c <= sl:
             return "SL HIT", "hit-sl"
-        return "TARGET NOT HIT (LIVE)", "hit-live"
+        return "LIVE", "hit-live"
 
     if min_l <= t3 or last_c <= t3:
         return "T3 HIT", "hit-yes"
@@ -248,10 +279,12 @@ def check_hit_status(d: pd.DataFrame, start_pos: int, side: str, sl: float, t1: 
         return "T1 HIT", "hit-yes"
     if max_h >= sl or last_c >= sl:
         return "SL HIT", "hit-sl"
-    return "TARGET NOT HIT (LIVE)", "hit-live"
+    return "LIVE", "hit-live"
 
 
-def evaluate_trade(d: pd.DataFrame, name: str, strike_step: int | None = None, is_index: bool = False) -> dict | None:
+def evaluate_trade(
+    d: pd.DataFrame, name: str, strike_step: int | None = None, is_index: bool = False
+) -> dict | None:
     last = d.iloc[-1]
     price = float(last["Close"])
     ema10 = float(last["ema10"])
@@ -286,22 +319,22 @@ def evaluate_trade(d: pd.DataFrame, name: str, strike_step: int | None = None, i
 
     if buy_ok:
         side = "BUY"
-        take_what = pick_strike(price, strike_step, "BUY") if strike_step else "BUY"
+        strike = pick_strike(price, strike_step, "BUY") if strike_step else "-"
         entry = price
         sl = max(0.0, entry - 2.0 * atr)
         t1 = entry + 1.5 * atr
         t2 = entry + 2.8 * atr
         t3 = entry + 4.2 * atr
-        reason = f"Res {res20:.2f} / HH {hh10:.2f} break | >50 EMA ({ema50:.2f}) & VWAP ({vwap:.2f}) | RSI {rsi:.1f} | ADX {adx:.1f}"
+        reason = f"Res {res20:.2f}/HH {hh10:.2f} | >50EMA & VWAP | RSI {rsi:.1f} | ADX {adx:.1f}"
     elif sell_ok:
         side = "SELL"
-        take_what = pick_strike(price, strike_step, "SELL") if strike_step else "SELL"
+        strike = pick_strike(price, strike_step, "SELL") if strike_step else "-"
         entry = price
         sl = entry + 2.0 * atr
         t1 = max(0.0, entry - 1.5 * atr)
         t2 = max(0.0, entry - 2.8 * atr)
         t3 = max(0.0, entry - 4.2 * atr)
-        reason = f"Sup {sup20:.2f} / LL {ll10:.2f} break | <50 EMA ({ema50:.2f}) & VWAP ({vwap:.2f}) | RSI {rsi:.1f} | ADX {adx:.1f}"
+        reason = f"Sup {sup20:.2f}/LL {ll10:.2f} | <50EMA & VWAP | RSI {rsi:.1f} | ADX {adx:.1f}"
     else:
         return None
 
@@ -332,7 +365,7 @@ def evaluate_trade(d: pd.DataFrame, name: str, strike_step: int | None = None, i
         "name": name,
         "is_index": is_index,
         "side": side,
-        "take_what": take_what,
+        "strike": strike,
         "cmp": round(price, 2),
         "entry": locked["entry"],
         "sl": locked["sl"],
@@ -357,65 +390,38 @@ def load_15m(ticker: str, period: str = "10d", interval: str = "15m") -> pd.Data
         return pd.DataFrame()
 
 
-def render_fno_item(item: dict):
+def render_card(item: dict, is_fno: bool):
     is_buy = item["side"] == "BUY"
-    box_cls = f"box-fno {'box-buy' if is_buy else 'box-sell'}"
+    box_cls = f"{'box-fno' if is_fno else 'stock-card'} {'box-buy' if is_buy else 'box-sell'}"
     side_cls = "badge-buy" if is_buy else "badge-sell"
+    left_label = f"{item['name']} • Strike: {item['strike']}" if is_fno else f"{item['name']}"
 
     st.markdown(
         f"""
         <div class="{box_cls}">
             <div class="row-top">
-                <span class="title-txt">{item['name']} → LENA HAI: {item['take_what']}</span>
+                <span class="title-txt">{left_label}</span>
                 <span>
-                    <span class="{side_cls}">{item['side']}</span> &nbsp;
+                    <span class="{side_cls}">{item['side']}</span>
                     <span class="{item['hit_cls']}">{item['hit_txt']}</span>
                 </span>
             </div>
-            <div class="lvl-txt">
-                <b>Entry:</b> {item['entry']:.2f} (CMP: {item['cmp']:.2f}) &nbsp;|&nbsp;
-                <b>SL:</b> {item['sl']:.2f} &nbsp;|&nbsp;
-                <b>T1:</b> {item['t1']:.2f} &nbsp;|&nbsp;
-                <b>T2:</b> {item['t2']:.2f} &nbsp;|&nbsp;
-                <b>T3:</b> {item['t3']:.2f}
+            <div class="sub-meta">
+                <b>Entry:</b> {item['entry']:.2f} &nbsp;|&nbsp; <b>CMP:</b> {item['cmp']:.2f}
             </div>
-            <div class="why-txt"><b>Kyun:</b> {item['reason']}</div>
+            <div class="lvl-grid">
+                <div class="lvl-cell lvl-t"><span class="lvl-lbl">T1</span><span class="lvl-val">{item['t1']:.2f}</span></div>
+                <div class="lvl-cell lvl-t"><span class="lvl-lbl">T2</span><span class="lvl-val">{item['t2']:.2f}</span></div>
+                <div class="lvl-cell lvl-t"><span class="lvl-lbl">T3</span><span class="lvl-val">{item['t3']:.2f}</span></div>
+                <div class="lvl-cell lvl-sl"><span class="lvl-lbl">SL</span><span class="lvl-val">{item['sl']:.2f}</span></div>
+            </div>
+            <div class="why-txt"><b>Reason:</b> {item['reason']}</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
 
-def render_stock_item(item: dict):
-    is_buy = item["side"] == "BUY"
-    card_cls = f"stock-card {'box-buy' if is_buy else 'box-sell'}"
-    side_cls = "badge-buy" if is_buy else "badge-sell"
-
-    st.markdown(
-        f"""
-        <div class="{card_cls}">
-            <div class="row-top">
-                <span class="title-txt">{item['name']}</span>
-                <span>
-                    <span class="{side_cls}">{item['side']}</span> &nbsp;
-                    <span class="{item['hit_cls']}">{item['hit_txt']}</span>
-                </span>
-            </div>
-            <div class="lvl-txt">
-                <b>Entry:</b> {item['entry']:.2f} (CMP: {item['cmp']:.2f}) &nbsp;|&nbsp;
-                <b>SL:</b> {item['sl']:.2f} &nbsp;|&nbsp;
-                <b>T1:</b> {item['t1']:.2f} &nbsp;|&nbsp;
-                <b>T2:</b> {item['t2']:.2f} &nbsp;|&nbsp;
-                <b>T3:</b> {item['t3']:.2f}
-            </div>
-            <div class="why-txt"><b>Kyun:</b> {item['reason']}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-# Sidebar Controls
 st.sidebar.header("Scanner Controls")
 refresh_sec = st.sidebar.slider("Auto-Refresh (sec)", min_value=30, max_value=60, value=30, step=5)
 auto_refresh = st.sidebar.checkbox("Auto-Refresh ON", value=True)
@@ -425,11 +431,10 @@ period_map = {"15m": "10d", "30m": "15d"}
 if st.sidebar.button("Refresh Now"):
     st.cache_data.clear()
 
-st.title("🎯 ARVANO F&O + Active Stocks (Single Screen, No Charts)")
-st.caption(f"Auto-refresh: {refresh_sec}s | 1. F&O (Nifty 50, Bank Nifty, Sensex) first | 2. Active BUY & SELL Stocks together")
+st.title("🎯 ARVANO F&O + Active Stocks")
+st.caption(f"Mobile View • {tf} • Auto-refresh {refresh_sec}s • F&O Strike & Stocks (T1 / T2 / T3 / SL)")
 
-# 1. F&O SECTION FIRST (Nifty 50, Bank Nifty, Sensex)
-st.subheader("1. F&O Calls / Puts (Nifty 50 • Bank Nifty • Sensex)")
+st.subheader("1. F&O (Strike • T1 • T2 • T3 • SL)")
 fno_active = []
 for idx_name, cfg in FNO_INDICES.items():
     df_i = load_15m(cfg["ticker"], period=period_map[tf], interval=tf)
@@ -440,16 +445,15 @@ for idx_name, cfg in FNO_INDICES.items():
 
 if fno_active:
     for f in fno_active:
-        render_fno_item(f)
+        render_card(f, is_fno=True)
 else:
-    st.info("Abhi F&O mein koi clear BUY/SELL breakout signal nahi aaya hai.")
+    st.info("Abhi F&O mein koi clear BUY/SELL setup nahi hai.")
 
 st.markdown("---")
 
-# 2. ACTIVE STOCKS TOGETHER (BUY & SELL combined, filtered from Top 100 NSE)
-st.subheader("2. Active Stocks — BUY & SELL Together (Filtered from Top 100 NSE)")
+st.subheader("2. Stocks — BUY & SELL (T1 • T2 • T3 • SL)")
 active_stocks = []
-prog = st.progress(0, text="Scanning Top 100 NSE stocks...")
+prog = st.progress(0, text="Scanning Top 100 NSE...")
 for idx, sym in enumerate(TOP_100_NSE):
     df_s = load_15m(sym, period=period_map[tf], interval=tf)
     if not df_s.empty:
@@ -457,7 +461,7 @@ for idx, sym in enumerate(TOP_100_NSE):
         sig_s = evaluate_trade(df_s, s_name, strike_step=None, is_index=False)
         if sig_s:
             active_stocks.append(sig_s)
-    prog.progress((idx + 1) / len(TOP_100_NSE), text=f"Scanning Top 100 NSE ({idx + 1}/{len(TOP_100_NSE)})...")
+    prog.progress((idx + 1) / len(TOP_100_NSE), text=f"Scanning ({idx + 1}/{len(TOP_100_NSE)})...")
 prog.empty()
 
 active_stocks.sort(key=lambda x: x["score"], reverse=True)
@@ -465,13 +469,13 @@ active_stocks.sort(key=lambda x: x["score"], reverse=True)
 if active_stocks:
     names_joined = " • ".join([f"{x['name']} ({x['side']})" for x in active_stocks])
     st.markdown(
-        f'<div class="names-banner"><b>Chalne Wale Active Stocks Ek Saath:</b> {names_joined}</div>',
+        f'<div class="names-banner"><b>Active Stocks:</b> {names_joined}</div>',
         unsafe_allow_html=True,
     )
     for st_item in active_stocks:
-        render_stock_item(st_item)
+        render_card(st_item, is_fno=False)
 else:
-    st.info("Abhi Top 100 NSE mein koi active BUY/SELL stock setup nahi bana hai.")
+    st.info("Abhi Top 100 NSE mein koi active BUY/SELL stock setup nahi hai.")
 
 if auto_refresh:
     time.sleep(refresh_sec)
