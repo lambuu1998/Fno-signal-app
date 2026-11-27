@@ -5,8 +5,8 @@ import streamlit as st
 import yfinance as yf
 
 st.set_page_config(
-    page_title="ARVANO Client & F&O Live Box Scanner",
-    page_icon="⚡",
+    page_title="ARVANO Active Movers Box Scanner",
+    page_icon="🎯",
     layout="wide",
 )
 
@@ -14,89 +14,93 @@ st.markdown(
     """
     <style>
     .stApp {
-        background-color: #0d0d10;
+        background-color: #0c0c0f;
         color: #f6f1e7;
     }
-    .client-box {
-        position: relative;
-        background: linear-gradient(145deg, #161519 0%, #1f1b16 100%);
-        border: 1px solid #3c3326;
-        border-left: 6px solid #d4a359;
-        border-radius: 12px;
-        padding: 16px 18px;
-        margin-bottom: 14px;
+    .pro-box {
+        background: linear-gradient(145deg, #151418 0%, #1d1914 100%);
+        border: 1px solid #3a3124;
+        border-radius: 14px;
+        padding: 18px 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
     }
-    .box-buy {
+    .pro-box-buy {
         border-left: 6px solid #22c55e;
     }
-    .box-sell {
+    .pro-box-sell {
         border-left: 6px solid #ef4444;
     }
-    .box-wait {
-        border-left: 6px solid #eab308;
-    }
-    .box-top-row {
+    .box-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 10px;
-        margin-bottom: 8px;
         flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 10px;
     }
-    .box-heading {
-        font-size: 1.08rem;
+    .box-title {
+        font-size: 1.14rem;
         font-weight: 800;
         color: #fff7e8;
     }
-    .hit-badge {
+    .side-pill-buy {
+        background: rgba(34, 197, 94, 0.2);
+        color: #4ade80;
+        border: 1px solid #22c55e;
         padding: 4px 12px;
         border-radius: 999px;
         font-size: 0.82rem;
         font-weight: 800;
-        letter-spacing: 0.3px;
     }
-    .hit-t1 {
-        background: rgba(34, 197, 94, 0.22);
-        color: #4ade80;
-        border: 1px solid #22c55e;
-    }
-    .hit-t2 {
-        background: rgba(16, 185, 129, 0.28);
-        color: #6ee7b7;
-        border: 1px solid #10b981;
-    }
-    .hit-t3 {
-        background: rgba(212, 163, 89, 0.28);
-        color: #fde68a;
-        border: 1px solid #f59e0b;
-    }
-    .hit-sl {
-        background: rgba(239, 68, 68, 0.24);
+    .side-pill-sell {
+        background: rgba(239, 68, 68, 0.2);
         color: #f87171;
         border: 1px solid #ef4444;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 800;
     }
-    .hit-active {
-        background: rgba(59, 130, 246, 0.22);
-        color: #93c5fd;
-        border: 1px solid #3b82f6;
-    }
-    .hit-wait {
-        background: rgba(148, 163, 184, 0.18);
-        color: #cbd5e1;
-        border: 1px solid #64748b;
-    }
-    .box-grid {
-        font-size: 0.95rem;
-        color: #f2e5cb;
-        margin-bottom: 8px;
+    .price-strip {
+        font-size: 0.96rem;
+        color: #f3e6cc;
+        margin-bottom: 12px;
         line-height: 1.5;
     }
-    .box-reason {
-        background: rgba(255, 255, 255, 0.04);
+    .target-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+    .t-chip {
+        padding: 6px 12px;
         border-radius: 8px;
-        padding: 9px 12px;
-        font-size: 0.89rem;
+        font-size: 0.86rem;
+        font-weight: 700;
+        border: 1px solid #474034;
+        background: rgba(255, 255, 255, 0.04);
+        color: #e8decb;
+    }
+    .t-green {
+        background: rgba(34, 197, 94, 0.22);
+        border: 1px solid #22c55e;
+        color: #4ade80;
+    }
+    .sl-red {
+        background: rgba(239, 68, 68, 0.24);
+        border: 1px solid #ef4444;
+        color: #f87171;
+    }
+    .logic-box {
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 9px;
+        padding: 10px 13px;
+        font-size: 0.90rem;
         color: #ebe2d2;
+        line-height: 1.45;
     }
     </style>
     """,
@@ -110,8 +114,8 @@ INDICES = {
 }
 
 METALS = {
-    "GOLD FUTURES (COMEX USD)": "GC=F",
-    "SILVER FUTURES (COMEX USD)": "SI=F",
+    "GOLD FUTURES (USD)": "GC=F",
+    "SILVER FUTURES (USD)": "SI=F",
     "GOLDBEES (NSE)": "GOLDBEES.NS",
     "SILVERBEES (NSE)": "SILVERBEES.NS",
 }
@@ -164,9 +168,11 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     low = d["Low"].astype(float)
     vol = d["Volume"].fillna(0).astype(float) if "Volume" in d.columns else pd.Series(0.0, index=d.index)
 
+    # 1. Customized 10 EMA & 50 EMA
     d["ema10"] = close.ewm(span=10, adjust=False).mean()
     d["ema50"] = close.ewm(span=50, adjust=False).mean()
 
+    # 2. VWAP
     tp = (high + low + close) / 3.0
     if vol.sum() > 0:
         day_key = d.index.date
@@ -176,12 +182,14 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     else:
         d["vwap"] = close.ewm(span=24, adjust=False).mean()
 
+    # 3. RSI (14)
     delta = close.diff()
     gain = delta.clip(lower=0).ewm(alpha=1 / 14, adjust=False).mean()
     loss = (-delta.clip(upper=0)).ewm(alpha=1 / 14, adjust=False).mean()
     rs = gain / loss.replace(0, np.nan)
     d["rsi14"] = (100 - (100 / (1 + rs))).fillna(50.0)
 
+    # 4. ATR (14) & ATR%
     prev_close = close.shift(1)
     tr = pd.concat(
         [(high - low).abs(), (high - prev_close).abs(), (low - prev_close).abs()],
@@ -190,6 +198,7 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     d["atr14"] = tr.ewm(alpha=1 / 14, adjust=False).mean()
     d["atr_pct"] = (d["atr14"] / close.replace(0, np.nan)) * 100.0
 
+    # 5. ADX (14)
     up_move = high.diff()
     down_move = -low.diff()
     plus_dm = np.where((up_move > down_move) & (up_move > 0), up_move, 0.0)
@@ -200,13 +209,14 @@ def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     dx = (100 * (plus_di - minus_di).abs() / (plus_di + minus_di).replace(0, np.nan)).fillna(0.0)
     d["adx14"] = dx.ewm(alpha=1 / 14, adjust=False).mean()
 
+    # Support & Resistance (20-bar)
     d["res20"] = high.shift(1).rolling(20).max()
     d["sup20"] = low.shift(1).rolling(20).min()
 
     return d.dropna(subset=["ema50", "atr14", "res20", "sup20"])
 
 
-def detect_hit_status(d: pd.DataFrame, side: str, entry: float, sl: float, t1: float, t2: float, t3: float) -> str:
+def evaluate_hits(d: pd.DataFrame, side: str, sl: float, t1: float, t2: float, t3: float) -> dict:
     today = d.index[-1].date()
     today_df = d[d.index.date == today]
     if today_df.empty:
@@ -217,31 +227,25 @@ def detect_hit_status(d: pd.DataFrame, side: str, entry: float, sl: float, t1: f
     last_close = float(d["Close"].iloc[-1])
 
     if side == "BUY":
-        if max_high >= t3 or last_close >= t3:
-            return "T3 HIT"
-        if max_high >= t2 or last_close >= t2:
-            return "T2 HIT"
-        if max_high >= t1 or last_close >= t1:
-            return "T1 HIT"
-        if min_low <= sl or last_close <= sl:
-            return "SL HIT"
-        return "ACTIVE (RUNNING)"
+        t1_hit = (max_high >= t1) or (last_close >= t1)
+        t2_hit = (max_high >= t2) or (last_close >= t2)
+        t3_hit = (max_high >= t3) or (last_close >= t3)
+        sl_hit = (min_low <= sl) or (last_close <= sl)
+    else:
+        t1_hit = (min_low <= t1) or (last_close <= t1)
+        t2_hit = (min_low <= t2) or (last_close <= t2)
+        t3_hit = (min_low <= t3) or (last_close <= t3)
+        sl_hit = (max_high >= sl) or (last_close >= sl)
 
-    if side == "SELL":
-        if min_low <= t3 or last_close <= t3:
-            return "T3 HIT"
-        if min_low <= t2 or last_close <= t2:
-            return "T2 HIT"
-        if min_low <= t1 or last_close <= t1:
-            return "T1 HIT"
-        if max_high >= sl or last_close >= sl:
-            return "SL HIT"
-        return "ACTIVE (RUNNING)"
-
-    return "NO TRADE (WAIT)"
+    return {
+        "t1_hit": t1_hit,
+        "t2_hit": t2_hit,
+        "t3_hit": t3_hit,
+        "sl_hit": sl_hit,
+    }
 
 
-def build_signal(d: pd.DataFrame, name: str, strike_step: int | None = None) -> dict:
+def scan_active_setup(d: pd.DataFrame, name: str, strike_step: int | None = None) -> dict | None:
     last = d.iloc[-1]
     price = float(last["Close"])
     ema10 = float(last["ema10"])
@@ -254,81 +258,92 @@ def build_signal(d: pd.DataFrame, name: str, strike_step: int | None = None) -> 
     res20 = float(last["res20"])
     sup20 = float(last["sup20"])
 
-    reasons = []
-    if price > res20:
-        reasons.append(f"Resistance {res20:.2f} break")
-    elif price < sup20:
-        reasons.append(f"Support {sup20:.2f} break")
+    lows_win = d["Low"].iloc[-25:-1]
+    highs_win = d["High"].iloc[-25:-1]
+    min_low = float(lows_win.min()) if len(lows_win) else sup20
+    max_high = float(highs_win.max()) if len(highs_win) else res20
 
     bull_score = int(price > ema50) + int(price > vwap) + int(rsi >= 55) + int(adx >= 20) + int(price >= ema10)
     bear_score = int(price < ema50) + int(price < vwap) + int(rsi <= 45) + int(adx >= 20) + int(price <= ema10)
 
+    sr_note = ""
+    if price > res20:
+        sr_note = f"Resistance {res20:.2f} break"
+    elif price < sup20:
+        sr_note = f"Support {sup20:.2f} break"
+    elif abs(price - res20) / max(price, 1e-6) <= 0.003:
+        sr_note = f"Resistance {res20:.2f} zone"
+    elif abs(price - sup20) / max(price, 1e-6) <= 0.003:
+        sr_note = f"Support {sup20:.2f} zone"
+
+    pattern_note = ""
+    if abs(min_low - sup20) / max(sup20, 1e-6) <= 0.004 and price >= ema10:
+        pattern_note = "Double Bottom structure"
+    elif abs(max_high - res20) / max(res20, 1e-6) <= 0.004 and price <= ema10:
+        pattern_note = "Double Top structure"
+
+    # Only return actionable BUY or SELL setups (filter out sideways/no-trade noise)
     if bull_score >= 4 and price > ema50 and price > vwap:
         side = "BUY"
-        call_text = f"BUY {round_strike(price, strike_step, 'BUY')} CE" if strike_step else "BUY"
+        action_label = f"BUY {round_strike(price, strike_step, 'BUY')} CE" if strike_step else "BUY"
         entry = price
         sl = max(0.0, entry - 2.0 * atr)
         t1 = entry + 1.5 * atr
         t2 = entry + 2.8 * atr
         t3 = entry + 4.2 * atr
-        reasons.append(f"Bullish ({bull_score}/5): >50 EMA & VWAP, RSI {rsi:.1f}, ADX {adx:.1f}")
+        why = f"Bullish alignment ({bull_score}/5): >50 EMA ({ema50:.2f}) & VWAP ({vwap:.2f}), RSI {rsi:.1f}, ADX {adx:.1f}"
     elif bear_score >= 4 and price < ema50 and price < vwap:
         side = "SELL"
-        call_text = f"BUY {round_strike(price, strike_step, 'SELL')} PE" if strike_step else "SELL"
+        action_label = f"BUY {round_strike(price, strike_step, 'SELL')} PE" if strike_step else "SELL"
         entry = price
         sl = entry + 2.0 * atr
         t1 = max(0.0, entry - 1.5 * atr)
         t2 = max(0.0, entry - 2.8 * atr)
         t3 = max(0.0, entry - 4.2 * atr)
-        reasons.append(f"Bearish ({bear_score}/5): <50 EMA & VWAP, RSI {rsi:.1f}, ADX {adx:.1f}")
+        why = f"Bearish alignment ({bear_score}/5): <50 EMA ({ema50:.2f}) & VWAP ({vwap:.2f}), RSI {rsi:.1f}, ADX {adx:.1f}"
     else:
-        side = "WAIT"
-        call_text = "WAIT (NO TRADE)"
-        entry = price
-        sl = max(0.0, entry - 2.0 * atr)
-        t1 = entry + 1.5 * atr if price >= ema50 else max(0.0, entry - 1.5 * atr)
-        t2 = entry + 2.8 * atr if price >= ema50 else max(0.0, entry - 2.8 * atr)
-        t3 = entry + 4.2 * atr if price >= ema50 else max(0.0, entry - 4.2 * atr)
-        reasons.append(f"Mixed setup (Bull {bull_score}/5, Bear {bear_score}/5, RSI {rsi:.1f}, ADX {adx:.1f})")
+        return None
 
-    lock_key = f"locked_{name}"
-    if side in ("BUY", "SELL"):
-        if lock_key not in st.session_state or st.session_state[lock_key]["side"] != side:
-            st.session_state[lock_key] = {
-                "side": side,
-                "entry": round(entry, 2),
-                "sl": round(sl, 2),
-                "t1": round(t1, 2),
-                "t2": round(t2, 2),
-                "t3": round(t3, 2),
-            }
-        locked = st.session_state[lock_key]
-        entry, sl, t1, t2, t3 = locked["entry"], locked["sl"], locked["t1"], locked["t2"], locked["t3"]
-    else:
-        st.session_state.pop(lock_key, None)
+    if sr_note:
+        why = f"{sr_note} | {why}"
+    if pattern_note:
+        why = f"{pattern_note} | {why}"
 
-    hit_status = detect_hit_status(d, side, entry, sl, t1, t2, t3)
-    move_score = (atr_pct * 2.2) + (adx * 0.5) + (35.0 if side != "WAIT" else 0.0)
+    lock_key = f"active_lock_{name}"
+    if lock_key not in st.session_state or st.session_state[lock_key]["side"] != side:
+        st.session_state[lock_key] = {
+            "side": side,
+            "entry": round(entry, 2),
+            "sl": round(sl, 2),
+            "t1": round(t1, 2),
+            "t2": round(t2, 2),
+            "t3": round(t3, 2),
+        }
+    locked = st.session_state[lock_key]
+    entry, sl, t1, t2, t3 = locked["entry"], locked["sl"], locked["t1"], locked["t2"], locked["t3"]
+
+    hits = evaluate_hits(d, side, sl, t1, t2, t3)
+    move_score = (atr_pct * 2.2) + (adx * 0.5) + (25.0 if "break" in sr_note.lower() else 0.0)
 
     return {
         "name": name,
         "side": side,
-        "call_text": call_text,
+        "action_label": action_label,
         "cmp": round(price, 2),
-        "entry": round(entry, 2),
-        "sl": round(sl, 2),
-        "t1": round(t1, 2),
-        "t2": round(t2, 2),
-        "t3": round(t3, 2),
+        "entry": entry,
+        "sl": sl,
+        "t1": t1,
+        "t2": t2,
+        "t3": t3,
         "atr_pct": round(atr_pct, 2),
-        "hit_status": hit_status,
-        "reason": " | ".join(reasons),
+        "why": why,
         "move_score": move_score,
+        **hits,
     }
 
 
 @st.cache_data(ttl=25, show_spinner=False)
-def fetch_data(ticker: str, period: str = "10d", interval: str = "15m") -> pd.DataFrame:
+def fetch_15m(ticker: str, period: str = "10d", interval: str = "15m") -> pd.DataFrame:
     try:
         raw = yf.download(ticker, period=period, interval=interval, progress=False, threads=False)
         if raw is None or raw.empty:
@@ -338,49 +353,40 @@ def fetch_data(ticker: str, period: str = "10d", interval: str = "15m") -> pd.Da
         return pd.DataFrame()
 
 
-def status_badge_html(status: str) -> str:
-    if "T3 HIT" in status:
-        return f'<span class="hit-badge hit-t3">{status}</span>'
-    if "T2 HIT" in status:
-        return f'<span class="hit-badge hit-t2">{status}</span>'
-    if "T1 HIT" in status:
-        return f'<span class="hit-badge hit-t1">{status}</span>'
-    if "SL HIT" in status:
-        return f'<span class="hit-badge hit-sl">{status}</span>'
-    if "ACTIVE" in status:
-        return f'<span class="hit-badge hit-active">{status}</span>'
-    return f'<span class="hit-badge hit-wait">{status}</span>'
+def render_mover_box(item: dict):
+    is_buy = item["side"] == "BUY"
+    box_cls = "pro-box pro-box-buy" if is_buy else "pro-box pro-box-sell"
+    pill_cls = "side-pill-buy" if is_buy else "side-pill-sell"
 
+    t1_cls = "t-chip t-green" if item["t1_hit"] else "t-chip"
+    t2_cls = "t-chip t-green" if item["t2_hit"] else "t-chip"
+    t3_cls = "t-chip t-green" if item["t3_hit"] else "t-chip"
+    sl_cls = "t-chip sl-red" if item["sl_hit"] else "t-chip"
 
-def render_client_box(title_left: str, sig: dict, next_stock_line: str = ""):
-    box_cls = (
-        "client-box box-buy"
-        if sig["side"] == "BUY"
-        else ("client-box box-sell" if sig["side"] == "SELL" else "client-box box-wait")
-    )
-    badge = status_badge_html(sig["hit_status"])
-    next_html = (
-        f'<div style="color:#ffd98e; font-size:0.90rem; margin-bottom:6px;"><b>Aage Chalne Wala Pick:</b> {next_stock_line}</div>'
-        if next_stock_line
-        else ""
-    )
+    t1_txt = f"T1: {item['t1']:.2f} — GREEN / HIT" if item["t1_hit"] else f"T1: {item['t1']:.2f} — Pending"
+    t2_txt = f"T2: {item['t2']:.2f} — GREEN / HIT" if item["t2_hit"] else f"T2: {item['t2']:.2f} — Pending"
+    t3_txt = f"T3: {item['t3']:.2f} — GREEN / HIT" if item["t3_hit"] else f"T3: {item['t3']:.2f} — Pending"
+    sl_txt = f"SL: {item['sl']:.2f} — SL HIT" if item["sl_hit"] else f"SL: {item['sl']:.2f} — Safe"
 
     st.markdown(
         f"""
         <div class="{box_cls}">
-            <div class="box-top-row">
-                <div class="box-heading">{title_left} → {sig['call_text']}</div>
-                <div>{badge}</div>
+            <div class="box-header">
+                <div class="box-title">{item['name']}</div>
+                <span class="{pill_cls}">{item['action_label']}</span>
             </div>
-            <div class="box-grid">
-                <b>Price / Entry:</b> {sig['entry']:.2f} (CMP: {sig['cmp']:.2f}) &nbsp;|&nbsp;
-                <b>SL:</b> {sig['sl']:.2f} &nbsp;|&nbsp;
-                <b>T1:</b> {sig['t1']:.2f} &nbsp;|&nbsp;
-                <b>T2:</b> {sig['t2']:.2f} &nbsp;|&nbsp;
-                <b>T3:</b> {sig['t3']:.2f}
+            <div class="price-strip">
+                <b>Entry Price:</b> {item['entry']:.2f} &nbsp;|&nbsp;
+                <b>CMP:</b> {item['cmp']:.2f} &nbsp;|&nbsp;
+                <b>ATR%:</b> {item['atr_pct']:.2f}%
             </div>
-            {next_html}
-            <div class="box-reason"><b>Kyun (Reason):</b> {sig['reason']}</div>
+            <div class="target-row">
+                <span class="{t1_cls}">{t1_txt}</span>
+                <span class="{t2_cls}">{t2_txt}</span>
+                <span class="{t3_cls}">{t3_txt}</span>
+                <span class="{sl_cls}">{sl_txt}</span>
+            </div>
+            <div class="logic-box"><b>Kyun (Logic):</b> {item['why']}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -388,100 +394,79 @@ def render_client_box(title_left: str, sig: dict, next_stock_line: str = ""):
 
 
 # Sidebar Controls
-st.sidebar.header("Live Auto-Refresh Controls")
-refresh_sec = st.sidebar.slider("Auto-Refresh Interval (Seconds)", min_value=30, max_value=60, value=45, step=5)
-auto_loop = st.sidebar.checkbox("Auto-Refresh ON (30–60s)", value=True)
-tf = st.sidebar.selectbox("Chart Timeframe Logic", ["15m", "30m"], index=0)
+st.sidebar.header("Live Mover Controls")
+refresh_sec = st.sidebar.slider("Auto-Refresh (Seconds)", min_value=30, max_value=60, value=45, step=5)
+auto_refresh = st.sidebar.checkbox("Auto-Refresh ON (30–60s)", value=True)
+tf = st.sidebar.selectbox("Timeframe", ["15m", "30m"], index=0)
 period_map = {"15m": "10d", "30m": "15d"}
 
-if st.sidebar.button("Manual Refresh Now"):
+if st.sidebar.button("Refresh Now"):
     st.cache_data.clear()
 
-st.title("⚡ ARVANO Client & F&O Box Scanner (No Charts)")
+st.title("🎯 ARVANO Active Movers Box Scanner (No Charts)")
 st.caption(
-    f"Auto-refresh: {refresh_sec}s | Auto-checks T1 / T2 / T3 / SL hit status | Nifty 50 • Bank Nifty • Sensex • Gold & Silver • Top 100 NSE"
+    f"Auto-refresh: {refresh_sec}s | Shows ONLY active BUY / SELL movement setups across Nifty 50, Bank Nifty, Sensex, Gold & Silver, and Top 100 NSE"
 )
 
-# 1. Scan Top 100 NSE Stocks
-all_stocks = []
-prog = st.progress(0, text="Scanning Top 100 NSE stocks...")
-for idx, sym in enumerate(TOP_100_NSE):
-    df_s = fetch_data(sym, period=period_map[tf], interval=tf)
+# 1. F&O Indices (Only Active BUY/SELL setups)
+st.subheader("1. F&O Indices Active Setups (Nifty 50 • Bank Nifty • Sensex)")
+active_indices = []
+for idx_name, cfg in INDICES.items():
+    df_i = fetch_15m(cfg["ticker"], period=period_map[tf], interval=tf)
+    if not df_i.empty:
+        sig_i = scan_active_setup(df_i, idx_name, strike_step=cfg["step"])
+        if sig_i:
+            active_indices.append(sig_i)
+
+if active_indices:
+    for item in active_indices:
+        render_mover_box(item)
+else:
+    st.info("Abhi Nifty 50 / Bank Nifty / Sensex mein koi clean BUY/SELL breakout lock nahi hua hai.")
+
+st.markdown("---")
+
+# 2. Gold & Silver (Only Active BUY/SELL setups)
+st.subheader("2. Gold & Silver Active Setups")
+active_metals = []
+for m_name, m_ticker in METALS.items():
+    df_m = fetch_15m(m_ticker, period=period_map[tf], interval=tf)
+    if not df_m.empty:
+        sig_m = scan_active_setup(df_m, m_name, strike_step=None)
+        if sig_m:
+            active_metals.append(sig_m)
+
+if active_metals:
+    for item in active_metals:
+        render_mover_box(item)
+else:
+    st.info("Abhi Gold/Silver mein koi clean BUY/SELL movement setup nahi bana hai.")
+
+st.markdown("---")
+
+# 3. Top 100 NSE Backend Scan -> Only Active BUY/SELL Movers Shown
+st.subheader("3. Active Stock Movers Today (Filtered from Top 100 NSE)")
+active_stocks = []
+prog = st.progress(0, text="Filtering Top 100 NSE for active BUY/SELL movers...")
+for i, sym in enumerate(TOP_100_NSE):
+    df_s = fetch_15m(sym, period=period_map[tf], interval=tf)
     if not df_s.empty:
         s_name = sym.replace(".NS", "")
-        all_stocks.append(build_signal(df_s, s_name, strike_step=None))
-    prog.progress((idx + 1) / len(TOP_100_NSE), text=f"Scanning Top 100 NSE ({idx + 1}/{len(TOP_100_NSE)})...")
+        sig_s = scan_active_setup(df_s, s_name, strike_step=None)
+        if sig_s:
+            active_stocks.append(sig_s)
+    prog.progress((i + 1) / len(TOP_100_NSE), text=f"Scanning Top 100 NSE ({i + 1}/{len(TOP_100_NSE)})...")
 prog.empty()
 
-all_stocks.sort(key=lambda x: x["move_score"], reverse=True)
-top_mover_str = (
-    f"{all_stocks[0]['name']} ({all_stocks[0]['call_text']}) | Price {all_stocks[0]['entry']:.2f} | "
-    f"T1 {all_stocks[0]['t1']:.2f} | T2 {all_stocks[0]['t2']:.2f} | T3 {all_stocks[0]['t3']:.2f} | Status: {all_stocks[0]['hit_status']}"
-    if all_stocks
-    else "No mover data"
-)
+active_stocks.sort(key=lambda x: x["move_score"], reverse=True)
 
-# 2. F&O / INDICES SECTION (Nifty 50, Bank Nifty, Sensex)
-st.subheader("1. F&O Indices Box (Nifty 50 • Bank Nifty • Sensex)")
-for idx_label, cfg in INDICES.items():
-    df_i = fetch_data(cfg["ticker"], period=period_map[tf], interval=tf)
-    if df_i.empty:
-        st.warning(f"{idx_label}: Live feed unavailable right now.")
-        continue
-    sig_i = build_signal(df_i, idx_label, strike_step=cfg["step"])
-    render_client_box(title_left=idx_label, sig=sig_i, next_stock_line=top_mover_str)
-
-st.markdown("---")
-
-# 3. GOLD & SILVER BOXES
-st.subheader("2. Gold & Silver Boxes (Futures & NSE ETFs)")
-for m_label, m_ticker in METALS.items():
-    df_m = fetch_data(m_ticker, period=period_map[tf], interval=tf)
-    if df_m.empty:
-        st.warning(f"{m_label}: Live feed unavailable right now.")
-        continue
-    sig_m = build_signal(df_m, m_label, strike_step=None)
-    render_client_box(title_left=m_label, sig=sig_m)
-
-st.markdown("---")
-
-# 4. ALL TOP 100 NSE STOCKS SINGLE CLEAN BOX LIST
-st.subheader("3. Top 100 NSE Stocks — Clean Client Box (Stock • Buy/Sell • Price • Kyun • T1/T2/T3 • Live Hit Status)")
-if all_stocks:
-    for rank, item in enumerate(all_stocks, start=1):
-        nxt_txt = ""
-        if rank < len(all_stocks):
-            nxt = all_stocks[rank]
-            nxt_txt = f"{nxt['name']} ({nxt['call_text']}) @ {nxt['entry']:.2f} [T1: {nxt['t1']:.2f} | {nxt['hit_status']}]"
-        render_client_box(
-            title_left=f"#{rank} {item['name']}",
-            sig=item,
-            next_stock_line=nxt_txt,
-        )
-
-    st.markdown("---")
-    st.subheader("4. Quick Status Summary Table (Top 100 NSE)")
-    summary_df = pd.DataFrame(
-        [
-            {
-                "Rank": i + 1,
-                "Stock": r["name"],
-                "Action": r["call_text"],
-                "Price": r["entry"],
-                "Kyun": r["reason"],
-                "T1": r["t1"],
-                "T2": r["t2"],
-                "T3": r["t3"],
-                "SL": r["sl"],
-                "Live Status": r["hit_status"],
-            }
-            for i, r in enumerate(all_stocks)
-        ]
-    )
-    st.dataframe(summary_df, use_container_width=True, hide_index=True)
+if active_stocks:
+    st.success(f"Aaj {len(active_stocks)} active stock movers mile hain:")
+    for item in active_stocks:
+        render_mover_box(item)
 else:
-    st.info("No stock data returned.")
+    st.info("Abhi Top 100 NSE stocks mein koi strong BUY/SELL signal lock nahi hua hai.")
 
-if auto_loop:
+if auto_refresh:
     time.sleep(refresh_sec)
     st.rerun()
