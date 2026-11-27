@@ -5,8 +5,8 @@ import streamlit as st
 import yfinance as yf
 
 st.set_page_config(
-    page_title="ARVANO F&O + Active Stocks Scanner",
-    page_icon="⚡",
+    page_title="ARVANO Single-Screen BUY | SELL Scanner",
+    page_icon="🎯",
     layout="wide",
 )
 
@@ -17,123 +17,98 @@ st.markdown(
         background-color: #0b0b0e;
         color: #f6f1e7;
     }
-    .fno-card {
-        background: linear-gradient(145deg, #151419 0%, #1d1914 100%);
-        border: 1px solid #3d3325;
-        border-radius: 12px;
-        padding: 15px 18px;
-        margin-bottom: 12px;
-    }
-    .fno-buy {
-        border-left: 6px solid #22c55e;
-    }
-    .fno-sell {
-        border-left: 6px solid #ef4444;
-    }
-    .fno-top {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 8px;
-    }
-    .fno-title {
-        font-size: 1.08rem;
-        font-weight: 800;
-        color: #fff8eb;
-    }
-    .pill-ce {
-        background: rgba(34, 197, 94, 0.22);
-        color: #4ade80;
+    .col-buy-head {
+        background: rgba(34, 197, 94, 0.16);
         border: 1px solid #22c55e;
-        padding: 3px 11px;
-        border-radius: 999px;
-        font-size: 0.80rem;
-        font-weight: 800;
-    }
-    .pill-pe {
-        background: rgba(239, 68, 68, 0.22);
-        color: #f87171;
-        border: 1px solid #ef4444;
-        padding: 3px 11px;
-        border-radius: 999px;
-        font-size: 0.80rem;
-        font-weight: 800;
-    }
-    .lvl-text {
-        font-size: 0.94rem;
-        color: #f3e6cc;
-        margin-bottom: 8px;
-        line-height: 1.5;
-    }
-    .status-line {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 7px;
-        margin-bottom: 8px;
-    }
-    .s-box {
-        padding: 4px 10px;
-        border-radius: 7px;
-        font-size: 0.80rem;
-        font-weight: 700;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        color: #ebe2d2;
-    }
-    .s-green {
-        background: rgba(34, 197, 94, 0.24);
-        border: 1px solid #22c55e;
-        color: #4ade80;
-    }
-    .s-red {
-        background: rgba(239, 68, 68, 0.25);
-        border: 1px solid #ef4444;
-        color: #f87171;
-    }
-    .why-note {
-        font-size: 0.86rem;
-        color: #e6ddcc;
-        background: rgba(255, 255, 255, 0.035);
-        border-radius: 8px;
-        padding: 8px 11px;
-    }
-    .stock-row {
-        background: #141317;
-        border: 1px solid #2d271e;
         border-radius: 10px;
         padding: 10px 14px;
-        margin-bottom: 8px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #4ade80;
+        text-align: center;
+        margin-bottom: 12px;
+    }
+    .col-sell-head {
+        background: rgba(239, 68, 68, 0.16);
+        border: 1px solid #ef4444;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #f87171;
+        text-align: center;
+        margin-bottom: 12px;
+    }
+    .item-buy {
+        background: #121b16;
+        border: 1px solid #264734;
+        border-left: 5px solid #22c55e;
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+    }
+    .item-sell {
+        background: #1c1315;
+        border: 1px solid #4c272d;
+        border-left: 5px solid #ef4444;
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+    }
+    .row-top {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        gap: 8px;
         flex-wrap: wrap;
-        gap: 10px;
+        margin-bottom: 6px;
     }
-    .stock-row-buy {
-        border-left: 5px solid #22c55e;
+    .item-name {
+        font-size: 1.02rem;
+        font-weight: 800;
+        color: #fff8ea;
     }
-    .stock-row-sell {
-        border-left: 5px solid #ef4444;
+    .hit-yes {
+        background: #16a34a;
+        color: #ffffff;
+        padding: 3px 10px;
+        border-radius: 6px;
+        font-size: 0.80rem;
+        font-weight: 800;
     }
-    .stock-main {
-        font-size: 0.93rem;
-        color: #f6efe2;
+    .hit-sl {
+        background: #dc2626;
+        color: #ffffff;
+        padding: 3px 10px;
+        border-radius: 6px;
+        font-size: 0.80rem;
+        font-weight: 800;
+    }
+    .hit-no {
+        background: rgba(255, 255, 255, 0.08);
+        color: #e5dccb;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        padding: 3px 10px;
+        border-radius: 6px;
+        font-size: 0.80rem;
+        font-weight: 700;
+    }
+    .item-nums {
+        font-size: 0.90rem;
+        color: #f3e6cc;
         line-height: 1.45;
+        margin-bottom: 5px;
     }
-    .stock-badges {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        align-items: center;
+    .item-reason {
+        font-size: 0.82rem;
+        color: #cfc4b0;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-FNO_LIST = {
+INDICES = {
     "NIFTY 50": {"ticker": "^NSEI", "step": 50},
     "BANK NIFTY": {"ticker": "^NSEBANK", "step": 100},
     "SENSEX": {"ticker": "^BSESN", "step": 100},
@@ -164,12 +139,12 @@ TOP_100_NSE = [
 TOP_100_NSE = list(dict.fromkeys(TOP_100_NSE))
 
 
-def get_strike(price: float, step: int, side: str) -> int:
+def strike_choice(price: float, step: int, side: str) -> str:
     atm = int(round(price / step) * step)
-    return atm + step if side == "BUY" else atm - step
+    return f"BUY {atm + step} CE" if side == "BUY" else f"BUY {atm - step} PE"
 
 
-def enrich_15m(df: pd.DataFrame) -> pd.DataFrame:
+def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     d = df.copy()
     if isinstance(d.columns, pd.MultiIndex):
         d.columns = d.columns.get_level_values(0)
@@ -183,11 +158,9 @@ def enrich_15m(df: pd.DataFrame) -> pd.DataFrame:
     low = d["Low"].astype(float)
     vol = d["Volume"].fillna(0).astype(float) if "Volume" in d.columns else pd.Series(0.0, index=d.index)
 
-    # 1. Customized EMAs (10 EMA & 50 EMA)
     d["ema10"] = close.ewm(span=10, adjust=False).mean()
     d["ema50"] = close.ewm(span=50, adjust=False).mean()
 
-    # 2. VWAP
     tp = (high + low + close) / 3.0
     if vol.sum() > 0:
         day_key = d.index.date
@@ -197,14 +170,12 @@ def enrich_15m(df: pd.DataFrame) -> pd.DataFrame:
     else:
         d["vwap"] = close.ewm(span=24, adjust=False).mean()
 
-    # 3. RSI (14)
     delta = close.diff()
     gain = delta.clip(lower=0).ewm(alpha=1 / 14, adjust=False).mean()
     loss = (-delta.clip(upper=0)).ewm(alpha=1 / 14, adjust=False).mean()
     rs = gain / loss.replace(0, np.nan)
     d["rsi14"] = (100 - (100 / (1 + rs))).fillna(50.0)
 
-    # 4. ATR (14) & ATR%
     prev_close = close.shift(1)
     tr = pd.concat(
         [(high - low).abs(), (high - prev_close).abs(), (low - prev_close).abs()],
@@ -213,7 +184,6 @@ def enrich_15m(df: pd.DataFrame) -> pd.DataFrame:
     d["atr14"] = tr.ewm(alpha=1 / 14, adjust=False).mean()
     d["atr_pct"] = (d["atr14"] / close.replace(0, np.nan)) * 100.0
 
-    # 5. ADX (14)
     up_move = high.diff()
     down_move = -low.diff()
     plus_dm = np.where((up_move > down_move) & (up_move > 0), up_move, 0.0)
@@ -224,7 +194,6 @@ def enrich_15m(df: pd.DataFrame) -> pd.DataFrame:
     dx = (100 * (plus_di - minus_di).abs() / (plus_di + minus_di).replace(0, np.nan)).fillna(0.0)
     d["adx14"] = dx.ewm(alpha=1 / 14, adjust=False).mean()
 
-    # Support / Resistance & Pattern structure
     d["res20"] = high.shift(1).rolling(20).max()
     d["sup20"] = low.shift(1).rolling(20).min()
     d["hh10"] = high.shift(1).rolling(10).max()
@@ -233,33 +202,37 @@ def enrich_15m(df: pd.DataFrame) -> pd.DataFrame:
     return d.dropna(subset=["ema50", "atr14", "res20", "sup20", "hh10", "ll10"])
 
 
-def evaluate_post_signal_hits(d: pd.DataFrame, signal_idx_pos: int, side: str, sl: float, t1: float, t2: float, t3: float) -> dict:
-    """Checks ONLY candles AFTER the signal formed so pre-signal moves don't falsely mark SL HIT."""
-    after_df = d.iloc[signal_idx_pos:]
-    if after_df.empty:
-        after_df = d.tail(1)
-
-    max_high = float(after_df["High"].max())
-    min_low = float(after_df["Low"].min())
-    last_close = float(d["Close"].iloc[-1])
+def hit_status_label(d: pd.DataFrame, start_pos: int, side: str, sl: float, t1: float, t2: float, t3: float) -> tuple[str, str]:
+    sub = d.iloc[start_pos:]
+    if sub.empty:
+        sub = d.tail(1)
+    max_h = float(sub["High"].max())
+    min_l = float(sub["Low"].min())
+    last_c = float(d["Close"].iloc[-1])
 
     if side == "BUY":
-        return {
-            "t1_hit": (max_high >= t1) or (last_close >= t1),
-            "t2_hit": (max_high >= t2) or (last_close >= t2),
-            "t3_hit": (max_high >= t3) or (last_close >= t3),
-            "sl_hit": (min_low <= sl) or (last_close <= sl),
-        }
+        if max_h >= t3 or last_c >= t3:
+            return "T3 HIT (TARGET HIT)", "hit-yes"
+        if max_h >= t2 or last_c >= t2:
+            return "T2 HIT (TARGET HIT)", "hit-yes"
+        if max_h >= t1 or last_c >= t1:
+            return "T1 HIT (TARGET HIT)", "hit-yes"
+        if min_l <= sl or last_c <= sl:
+            return "SL HIT", "hit-sl"
+        return "TARGET NOT HIT YET (LIVE)", "hit-no"
 
-    return {
-        "t1_hit": (min_low <= t1) or (last_close <= t1),
-        "t2_hit": (min_low <= t2) or (last_close <= t2),
-        "t3_hit": (min_low <= t3) or (last_close <= t3),
-        "sl_hit": (max_high >= sl) or (last_close >= sl),
-    }
+    if min_l <= t3 or last_c <= t3:
+        return "T3 HIT (TARGET HIT)", "hit-yes"
+    if min_l <= t2 or last_c <= t2:
+        return "T2 HIT (TARGET HIT)", "hit-yes"
+    if min_l <= t1 or last_c <= t1:
+        return "T1 HIT (TARGET HIT)", "hit-yes"
+    if max_h >= sl or last_c >= sl:
+        return "SL HIT", "hit-sl"
+    return "TARGET NOT HIT YET (LIVE)", "hit-no"
 
 
-def scan_movement(d: pd.DataFrame, name: str, strike_step: int | None = None) -> dict | None:
+def eval_setup(d: pd.DataFrame, label: str, strike_step: int | None = None, is_index: bool = False) -> dict | None:
     last = d.iloc[-1]
     price = float(last["Close"])
     ema10 = float(last["ema10"])
@@ -274,23 +247,13 @@ def scan_movement(d: pd.DataFrame, name: str, strike_step: int | None = None) ->
     hh10 = float(last["hh10"])
     ll10 = float(last["ll10"])
 
-    lows_win = d["Low"].iloc[-25:-1]
-    highs_win = d["High"].iloc[-25:-1]
-    min_low = float(lows_win.min()) if len(lows_win) else sup20
-    max_high = float(highs_win.max()) if len(highs_win) else res20
-
     buy_ok = (
         (price > ema50)
         and (ema10 >= ema50 * 0.999)
         and (price > vwap)
         and (rsi >= 55)
         and (adx >= 20)
-        and (
-            (price > res20)
-            or (price > hh10)
-            or (abs(price - res20) / max(price, 1e-6) <= 0.004)
-            or (abs(min_low - sup20) / max(sup20, 1e-6) <= 0.004 and price > ema10)
-        )
+        and ((price > res20) or (price > hh10) or (abs(price - res20) / max(price, 1e-6) <= 0.004))
     )
 
     sell_ok = (
@@ -299,46 +262,31 @@ def scan_movement(d: pd.DataFrame, name: str, strike_step: int | None = None) ->
         and (price < vwap)
         and (rsi <= 45)
         and (adx >= 20)
-        and (
-            (price < sup20)
-            or (price < ll10)
-            or (abs(price - sup20) / max(price, 1e-6) <= 0.004)
-            or (abs(max_high - res20) / max(res20, 1e-6) <= 0.004 and price < ema10)
-        )
+        and ((price < sup20) or (price < ll10) or (abs(price - sup20) / max(price, 1e-6) <= 0.004))
     )
 
     if buy_ok:
         side = "BUY"
-        trade_call = f"BUY {get_strike(price, strike_step, 'BUY')} CE" if strike_step else "BUY"
+        call_name = strike_choice(price, strike_step, "BUY") if strike_step else "BUY"
         entry = price
         sl = max(0.0, entry - 2.0 * atr)
         t1 = entry + 1.5 * atr
         t2 = entry + 2.8 * atr
         t3 = entry + 4.2 * atr
-        pat = (
-            f"Res {res20:.2f} Break"
-            if price > res20
-            else ("Double Bottom" if abs(min_low - sup20) / max(sup20, 1e-6) <= 0.004 else "HH Breakout")
-        )
-        why = f"{pat} | >50 EMA ({ema50:.2f}) & VWAP ({vwap:.2f}) | RSI {rsi:.1f} | ADX {adx:.1f}"
+        reason = f"Res/HH breakout | >50 EMA ({ema50:.2f}) & VWAP ({vwap:.2f}) | RSI {rsi:.1f} | ADX {adx:.1f}"
     elif sell_ok:
         side = "SELL"
-        trade_call = f"BUY {get_strike(price, strike_step, 'SELL')} PE" if strike_step else "SELL"
+        call_name = strike_choice(price, strike_step, "SELL") if strike_step else "SELL"
         entry = price
         sl = entry + 2.0 * atr
         t1 = max(0.0, entry - 1.5 * atr)
         t2 = max(0.0, entry - 2.8 * atr)
         t3 = max(0.0, entry - 4.2 * atr)
-        pat = (
-            f"Sup {sup20:.2f} Break"
-            if price < sup20
-            else ("Double Top" if abs(max_high - res20) / max(res20, 1e-6) <= 0.004 else "LL Breakdown")
-        )
-        why = f"{pat} | <50 EMA ({ema50:.2f}) & VWAP ({vwap:.2f}) | RSI {rsi:.1f} | ADX {adx:.1f}"
+        reason = f"Sup/LL breakdown | <50 EMA ({ema50:.2f}) & VWAP ({vwap:.2f}) | RSI {rsi:.1f} | ADX {adx:.1f}"
     else:
         return None
 
-    lock_key = f"msg_lock_{name}"
+    lock_key = f"single_lock_{label}"
     if lock_key not in st.session_state or st.session_state[lock_key]["side"] != side:
         st.session_state[lock_key] = {
             "side": side,
@@ -347,13 +295,13 @@ def scan_movement(d: pd.DataFrame, name: str, strike_step: int | None = None) ->
             "t1": round(t1, 2),
             "t2": round(t2, 2),
             "t3": round(t3, 2),
-            "bar_pos": len(d) - 1,
+            "pos": len(d) - 1,
         }
 
     locked = st.session_state[lock_key]
-    hits = evaluate_post_signal_hits(
+    status_text, status_cls = hit_status_label(
         d=d,
-        signal_idx_pos=locked["bar_pos"],
+        start_pos=locked["pos"],
         side=side,
         sl=locked["sl"],
         t1=locked["t1"],
@@ -361,181 +309,117 @@ def scan_movement(d: pd.DataFrame, name: str, strike_step: int | None = None) ->
         t3=locked["t3"],
     )
 
-    if hits["t3_hit"]:
-        hit_summary = "T3 HIT"
-    elif hits["t2_hit"]:
-        hit_summary = "T2 HIT"
-    elif hits["t1_hit"]:
-        hit_summary = "T1 HIT"
-    elif hits["sl_hit"]:
-        hit_summary = "SL HIT"
-    else:
-        hit_summary = "SIGNAL LIVE (WAITING)"
-
     return {
-        "name": name,
+        "label": label,
+        "is_index": is_index,
         "side": side,
-        "trade_call": trade_call,
+        "call_name": call_name,
         "cmp": round(price, 2),
         "entry": locked["entry"],
         "sl": locked["sl"],
         "t1": locked["t1"],
         "t2": locked["t2"],
         "t3": locked["t3"],
-        "atr_pct": round(atr_pct, 2),
-        "why": why,
-        "score": (atr_pct * 2.2) + (adx * 0.6),
-        "hit_summary": hit_summary,
-        **hits,
+        "reason": reason,
+        "status_text": status_text,
+        "status_cls": status_cls,
+        "score": (1000.0 if is_index else 0.0) + (atr_pct * 2.0) + (adx * 0.5),
     }
 
 
 @st.cache_data(ttl=25, show_spinner=False)
-def fetch_15m(ticker: str, period: str = "10d", interval: str = "15m") -> pd.DataFrame:
+def get_df(ticker: str, period: str = "10d", interval: str = "15m") -> pd.DataFrame:
     try:
         raw = yf.download(ticker, period=period, interval=interval, progress=False, threads=False)
         if raw is None or raw.empty:
             return pd.DataFrame()
-        return enrich_15m(raw)
+        return add_indicators(raw)
     except Exception:
         return pd.DataFrame()
 
 
-def render_fno_box(item: dict):
+def render_row_card(item: dict):
     is_buy = item["side"] == "BUY"
-    card_cls = "fno-card fno-buy" if is_buy else "fno-card fno-sell"
-    pill_cls = "pill-ce" if is_buy else "pill-pe"
-
-    t1_cls = "s-box s-green" if item["t1_hit"] else "s-box"
-    t2_cls = "s-box s-green" if item["t2_hit"] else "s-box"
-    t3_cls = "s-box s-green" if item["t3_hit"] else "s-box"
-    sl_cls = "s-box s-red" if item["sl_hit"] else "s-box"
+    box_cls = "item-buy" if is_buy else "item-sell"
+    title_txt = f"{item['label']} ({item['call_name']})" if item["is_index"] else f"{item['label']} — {item['call_name']}"
 
     st.markdown(
         f"""
-        <div class="{card_cls}">
-            <div class="fno-top">
-                <div class="fno-title">{item['name']} — {item['trade_call']}</div>
-                <span class="{pill_cls}">{item['hit_summary']}</span>
+        <div class="{box_cls}">
+            <div class="row-top">
+                <span class="item-name">{title_txt}</span>
+                <span class="{item['status_cls']}">{item['status_text']}</span>
             </div>
-            <div class="lvl-text">
-                <b>Price / Entry:</b> {item['entry']:.2f} (CMP: {item['cmp']:.2f}) &nbsp;|&nbsp;
+            <div class="item-nums">
+                <b>Entry:</b> {item['entry']:.2f} (CMP: {item['cmp']:.2f}) &nbsp;|&nbsp;
                 <b>SL:</b> {item['sl']:.2f} &nbsp;|&nbsp;
                 <b>T1:</b> {item['t1']:.2f} &nbsp;|&nbsp;
                 <b>T2:</b> {item['t2']:.2f} &nbsp;|&nbsp;
                 <b>T3:</b> {item['t3']:.2f}
             </div>
-            <div class="status-line">
-                <span class="{t1_cls}">T1 {item['t1']:.2f} {'✓ HIT' if item['t1_hit'] else ''}</span>
-                <span class="{t2_cls}">T2 {item['t2']:.2f} {'✓ HIT' if item['t2_hit'] else ''}</span>
-                <span class="{t3_cls}">T3 {item['t3']:.2f} {'✓ HIT' if item['t3_hit'] else ''}</span>
-                <span class="{sl_cls}">SL {item['sl']:.2f} {'✕ SL HIT' if item['sl_hit'] else ''}</span>
-            </div>
-            <div class="why-note"><b>Kyun Chal Raha Hai:</b> {item['why']}</div>
+            <div class="item-reason">{item['reason']}</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
 
-def render_single_page_stock_line(item: dict):
-    is_buy = item["side"] == "BUY"
-    row_cls = "stock-row stock-row-buy" if is_buy else "stock-row stock-row-sell"
-    side_cls = "s-box s-green" if is_buy else "s-box s-red"
-
-    t1_cls = "s-box s-green" if item["t1_hit"] else "s-box"
-    t2_cls = "s-box s-green" if item["t2_hit"] else "s-box"
-    t3_cls = "s-box s-green" if item["t3_hit"] else "s-box"
-    sl_cls = "s-box s-red" if item["sl_hit"] else "s-box"
-
-    if item["t3_hit"]:
-        outcome_badge = '<span class="s-box s-green">T3 TARGET HIT</span>'
-    elif item["t2_hit"]:
-        outcome_badge = '<span class="s-box s-green">T2 TARGET HIT</span>'
-    elif item["t1_hit"]:
-        outcome_badge = '<span class="s-box s-green">T1 TARGET HIT</span>'
-    elif item["sl_hit"]:
-        outcome_badge = '<span class="s-box s-red">SL HIT</span>'
-    else:
-        outcome_badge = '<span class="s-box">ACTIVE</span>'
-
-    st.markdown(
-        f"""
-        <div class="{row_cls}">
-            <div class="stock-main">
-                <b>{item['name']}</b> &nbsp;
-                <span class="{side_cls}">{item['side']}</span> &nbsp;
-                <b>Price:</b> {item['entry']:.2f} &nbsp;|&nbsp;
-                <b>T1:</b> {item['t1']:.2f} &nbsp;|&nbsp;
-                <b>T2:</b> {item['t2']:.2f} &nbsp;|&nbsp;
-                <b>T3:</b> {item['t3']:.2f} &nbsp;|&nbsp;
-                <b>SL:</b> {item['sl']:.2f}
-            </div>
-            <div class="stock-badges">
-                <span class="{t1_cls}">T1 {'HIT' if item['t1_hit'] else '—'}</span>
-                <span class="{t2_cls}">T2 {'HIT' if item['t2_hit'] else '—'}</span>
-                <span class="{t3_cls}">T3 {'HIT' if item['t3_hit'] else '—'}</span>
-                <span class="{sl_cls}">SL {'HIT' if item['sl_hit'] else '—'}</span>
-                {outcome_badge}
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-# Sidebar Controls
-st.sidebar.header("Live Scanner Controls")
-refresh_sec = st.sidebar.slider("Auto-Refresh (Seconds)", min_value=30, max_value=60, value=45, step=5)
-auto_refresh = st.sidebar.checkbox("Auto-Refresh ON (30–60s)", value=True)
+st.sidebar.header("Controls")
+refresh_sec = st.sidebar.slider("Auto-Refresh (sec)", min_value=30, max_value=60, value=30, step=5)
+auto_refresh = st.sidebar.checkbox("Auto-Refresh ON", value=True)
 tf = st.sidebar.selectbox("Timeframe", ["15m", "30m"], index=0)
 period_map = {"15m": "10d", "30m": "15d"}
 
 if st.sidebar.button("Refresh Now"):
     st.cache_data.clear()
 
-st.title("⚡ ARVANO F&O + Active Stocks Scanner (No Charts)")
-st.caption(f"Auto-refresh: {refresh_sec}s | F&O first (Nifty 50, Bank Nifty, Sensex) → Active Stocks on single page | Only real movements shown")
+st.title("🎯 ARVANO Single-Screen Scanner — BUY Left | SELL Right (No Charts)")
+st.caption(f"Refresh: {refresh_sec}s | Left = BUY Only (Indices CE + BUY Stocks) | Right = SELL Only (Indices PE + SELL Stocks)")
 
-# 1. F&O SECTION FIRST (Nifty 50, Bank Nifty, Sensex)
-st.subheader("1. F&O Calls / Puts (Nifty 50 • Bank Nifty • Sensex)")
-fno_signals = []
-for idx_name, cfg in FNO_LIST.items():
-    df_i = fetch_15m(cfg["ticker"], period=period_map[tf], interval=tf)
+buy_items = []
+sell_items = []
+
+# 1. Indices (Nifty 50, Bank Nifty, Sensex) with CE / PE strike suggestion
+for idx_name, cfg in INDICES.items():
+    df_i = get_df(cfg["ticker"], period=period_map[tf], interval=tf)
     if not df_i.empty:
-        sig_i = scan_movement(df_i, idx_name, strike_step=cfg["step"])
+        sig_i = eval_setup(df_i, idx_name, strike_step=cfg["step"], is_index=True)
         if sig_i:
-            fno_signals.append(sig_i)
+            (buy_items if sig_i["side"] == "BUY" else sell_items).append(sig_i)
 
-if fno_signals:
-    for f_item in fno_signals:
-        render_fno_box(f_item)
-else:
-    st.info("Abhi Nifty 50 / Bank Nifty / Sensex mein koi naya clear CALL/PUT movement lock nahi hua hai.")
-
-st.markdown("---")
-
-# 2. SINGLE-PAGE ACTIVE STOCKS (Filtered from Top 100 NSE)
-st.subheader("2. Active Stocks — Single Page (Stock • BUY/SELL • Price • T1 • T2 • T3 • SL • Hit Status)")
-active_stocks = []
-prog = st.progress(0, text="Scanning Top 100 NSE for active movements...")
-for i, sym in enumerate(TOP_100_NSE):
-    df_s = fetch_15m(sym, period=period_map[tf], interval=tf)
+# 2. Top 100 NSE Stocks (only active BUY/SELL setups)
+prog = st.progress(0, text="Scanning Top 100 NSE stocks...")
+for idx, sym in enumerate(TOP_100_NSE):
+    df_s = get_df(sym, period=period_map[tf], interval=tf)
     if not df_s.empty:
         s_name = sym.replace(".NS", "")
-        sig_s = scan_movement(df_s, s_name, strike_step=None)
+        sig_s = eval_setup(df_s, s_name, strike_step=None, is_index=False)
         if sig_s:
-            active_stocks.append(sig_s)
-    prog.progress((i + 1) / len(TOP_100_NSE), text=f"Scanning Top 100 NSE ({i + 1}/{len(TOP_100_NSE)})...")
+            (buy_items if sig_s["side"] == "BUY" else sell_items).append(sig_s)
+    prog.progress((idx + 1) / len(TOP_100_NSE), text=f"Scanning Top 100 NSE ({idx + 1}/{len(TOP_100_NSE)})...")
 prog.empty()
 
-active_stocks.sort(key=lambda x: x["score"], reverse=True)
+buy_items.sort(key=lambda x: x["score"], reverse=True)
+sell_items.sort(key=lambda x: x["score"], reverse=True)
 
-if active_stocks:
-    for s_item in active_stocks:
-        render_single_page_stock_line(s_item)
-else:
-    st.info("Abhi Top 100 NSE mein koi strong BUY/SELL movement setup nahi bana hai.")
+# Single Screen Side-by-Side: Left BUY ONLY | Right SELL ONLY
+col_left, col_right = st.columns(2, gap="large")
+
+with col_left:
+    st.markdown('<div class="col-buy-head">LEFT SIDE — BUY ONLY (INDEX CE + BUY STOCKS)</div>', unsafe_allow_html=True)
+    if buy_items:
+        for b in buy_items:
+            render_row_card(b)
+    else:
+        st.info("Abhi koi BUY setup criteria match nahi kar raha.")
+
+with col_right:
+    st.markdown('<div class="col-sell-head">RIGHT SIDE — SELL ONLY (INDEX PE + SELL STOCKS)</div>', unsafe_allow_html=True)
+    if sell_items:
+        for s in sell_items:
+            render_row_card(s)
+    else:
+        st.info("Abhi koi SELL setup criteria match nahi kar raha.")
 
 if auto_refresh:
     time.sleep(refresh_sec)
